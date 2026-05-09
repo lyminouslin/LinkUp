@@ -213,6 +213,7 @@ public class GameFrame extends JFrame {
 
     /*注意，这里的填充逻辑是最简单的，按照两两成对拜访，后续需要在弄出来可销路径之后更改逻辑*/
     private void fillEasyBoard() {
+        gameCore.resetGrid();
         GameCore game_ = new GameCore(4, 4, patternCount);
         GameMethods.generatePattern(game_);
         for (int i = 0; i < 4; i++)

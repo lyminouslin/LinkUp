@@ -1,5 +1,6 @@
 import util.Utils.Pair;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class GameCore {
     private final int[][] grid;
@@ -8,7 +9,7 @@ public class GameCore {
     public final int pattern_number;
 
     public ArrayList<Pair> Points;
-
+    public HashSet<Pair> pointsMap;
 
     public GameCore(int rows, int cols, int pattern_number) {
         this.rows = rows;
@@ -16,6 +17,7 @@ public class GameCore {
         this.pattern_number = pattern_number;
         grid = new int[rows][cols];
         Points = new ArrayList<>();
+        pointsMap = new HashSet<>();
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 grid[i][j] = 0;

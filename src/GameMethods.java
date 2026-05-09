@@ -13,23 +13,31 @@ public class GameMethods {
     static private void generatePattern(GameCore game, Pair a, Pair b, ArrayList<Integer> bag) {
         int pattern;
         int x1 = a.x, y1 = a.y, x2 = b.x, y2 = b.y;
-        Pair a_ = new Pair(x1 - 1, y1 - 1);
-        Pair b_ = new Pair(x2 + 1, y2 + 1);
+        Pair a_ = new Pair(Math.max(x1 - 1, 0), Math.max(y1 - 1, 0));
+        Pair b_ = new Pair(Math.min(x2 + 1, game.getRows() - 1), Math.min(y2 + 1, game.getCols() - 1));
         if (x1 == x2) {
 //            pattern = rand.nextInt(game.pattern_number) + 1;
             pattern = bag.getFirst();
             bag.removeFirst();
-
             for (int i = y1; i <= y2; i++) game.setGrid(x1, i, pattern);
+            game.pointsMap.add(a);
+            game.pointsMap.add(b);
             generatePattern(game, a_, b_, bag);
         }
         for (int i = x1; i <= x2; i++) {
             for (int j = y1; j <= y2; j++) {
+                Pair p = new Pair(i, j);
                 if (!isCoordinateValid(i, j, game.getRows(), game.getCols())) continue;
-                if (game.getGrid(i, j) == 0) game.Points.add(new Pair(i, j));
+                if (game.getGrid(i, j) == 0) { game.Points.add(p);}
             }
         }
         if (game.Points.isEmpty()) return;
+        game.Points.sort((o1, o2) -> o1.x - o2.x == 0 ? o1.y - o2.y : o1.x - o2.x);
+        for (int i = 1; i < game.Points.size(); i++) {
+            Pair p = game.Points.get(i);
+            Pair _p = game.Points.get(i - 1);
+            if (p.x == _p.x && p.y == _p.y) game.Points.remove(p);
+        }
         Collections.shuffle(game.Points);
         while (game.Points.size() > 1) {
             Pair p1 = game.Points.get(0);
