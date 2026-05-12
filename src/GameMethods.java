@@ -66,6 +66,8 @@ public class GameMethods {
         if (eliminationInvalid(game, a, b)) {
             game.setGrid(a.x, a.y, 0);
             game.setGrid(b.x, b.y, 0);
+            System.out.println(a.x + " " + a.y);
+            System.out.println(b.x + " " + b.y);
             result = true;
         }
         return result;
@@ -75,7 +77,7 @@ public class GameMethods {
         // 所有的合法路径都应该是三折线形式，我们引入两个辅助函数进行处理。
         // 首先排除两点不等的情况 和点重合的情况
         if (game.getGrid(a.x, a.y) != game.getGrid(b.x, b.y)) return false;
-        if (a == b) return false;
+        if (a.x == b.x && a.y == b.y) return false;
         if (game.getGrid(a.x, a.y) == 0 || game.getGrid(b.x, b.y) == 0) return false;
         // 然后先看横线段能否存在
         for (int i = 0; i < game.getRows(); i++) {

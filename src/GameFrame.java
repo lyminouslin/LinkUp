@@ -336,6 +336,7 @@ public class GameFrame extends JFrame {
     private void handleCellClick(ImageGridCell cell) {
         int x = cell.getRow();
         int y = cell.getCol();
+        Pair currentCell = new Pair(x, y);
         //如果时间已经到了，就不处理
         if (leftSeconds <= 0) {
             return;
@@ -347,8 +348,7 @@ public class GameFrame extends JFrame {
         }
 
         if (cellStack.isEmpty()) {
-            Pair selectedCell = new Pair(cell.getRow(), cell.getCol());
-            cellStack.add(selectedCell);
+            cellStack.add(currentCell);
             cell.setChosen(true);
         } else {
             Pair selectedCell = cellStack.pop();
@@ -356,9 +356,8 @@ public class GameFrame extends JFrame {
             int _y = selectedCell.y;
             cell.setChosen(x != _x || y != _y);
             Timer timer1 = new Timer(100, e -> {
-                if ((gameCore.getGrid(x, y) == gameCore.getGrid(_x, _y)) && ((x != _x) || (y != _y))) {
-                    gameCore.setGrid(x, y, 0);
-                    gameCore.setGrid(_x, _y, 0);
+//                if ((gameCore.getGrid(x, y) == gameCore.getGrid(_x, _y)) && ((x != _x) || (y != _y))) {
+                if (GameMethods.eliminatePattern(gameCore, currentCell, selectedCell)) {
                     cells[x][y].resetValue();
                     cells[_x][_y].resetValue();
                 } else {
@@ -371,10 +370,10 @@ public class GameFrame extends JFrame {
                 });
                 timer2.setRepeats(false);
                 timer2.start();
+                gameCore.showGrid();
             });
             timer1.setRepeats(false);
             timer1.start();
-
         }
     }
 
@@ -484,7 +483,8 @@ class ImageGridCell extends JPanel {
         setLayout(new BorderLayout());
         Color normalColor = new Color(240, 240, 240);
         setBackground(normalColor);
-        setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+//        setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+        setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         setOpaque(true);
 
         add(imageLabel, BorderLayout.CENTER);
@@ -500,7 +500,8 @@ class ImageGridCell extends JPanel {
 
     public void setChosen(boolean chosen) {
         if (chosen) setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
-        else setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+//        else if (imageLabel != null) setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+        else setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         repaint();
     }
 
