@@ -4,12 +4,8 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Login {
-    public static void main(String[] args) {
-        showLoginWindow();
-    }
-
     //取消了main函数，改成showLoginWindow方法，以便在Main类中调用
-    public static void showLoginWindow() {
+    public static JFrame createLoginWindow() {
         JFrame loginFrame = new JFrame("Login");
         loginFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         loginFrame.setSize(400, 220);
@@ -69,14 +65,11 @@ public class Login {
                 JOptionPane.showMessageDialog(loginFrame, "Welcome!");
                 //如果用户成功进入游戏系统那接下来就是选择困难/简单mode
                 Boolean hardMode = DifficultySelector.chooseDifficulty(loginFrame);
-                if (hardMode == null) {//如果是null(也就是取消或者退出)，直接返回登陆界面
-                    return;
-                }
+                //如果是null(也就是取消或者退出)，直接返回登陆界面
+                if (hardMode == null) return;
                 loginFrame.dispose();//关闭并释放这个窗口占用的资源
                 WindowManager.switchTo(new GameFrame(hardMode));
-            } else {
-                JOptionPane.showMessageDialog(loginFrame, "Wrong account or password.");
-            }
+            } else JOptionPane.showMessageDialog(loginFrame, "Wrong account or password.");
         });
 
         loginFrame.add(usernameLabel);
@@ -85,7 +78,6 @@ public class Login {
         loginFrame.add(password);
         loginFrame.add(loginButton);
 
-        WindowManager.switchTo(loginFrame);
-//        loginFrame.setVisible(true);
+        return loginFrame;
     }
 }

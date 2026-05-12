@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Register {
-    public static void showRegisterWindow() {
+    public static JFrame createRegisterWindow() {
         //创建register的框架
         JFrame registerFrame = new JFrame("Register");
         registerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -86,7 +86,7 @@ public class Register {
 
             JOptionPane.showMessageDialog(registerFrame, "Register success!");
             registerFrame.dispose();
-            Login.showLoginWindow();
+            WindowManager.showMainWindow();
         });
 
         registerFrame.add(usernameLabel);
@@ -95,6 +95,7 @@ public class Register {
         registerFrame.add(password);
         registerFrame.add(registerButton);
 //        registerFrame.setVisible(true);
-        WindowManager.switchTo(registerFrame);
+//        WindowManager.switchTo(registerFrame);
+        return registerFrame;
     }
 }

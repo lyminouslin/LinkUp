@@ -15,7 +15,6 @@ public class WindowManager {
         if (currentMainFrame != null) {
             currentMainFrame.setVisible(false);
         }
-
         // 监听新窗口关闭事件
         newWindow.addWindowListener(new WindowAdapter() {
             @Override
@@ -29,7 +28,6 @@ public class WindowManager {
 
         newWindow.setVisible(true);
     }
-
     // 显示主窗口
     public static void showMainWindow() {
         if (currentMainFrame != null) {

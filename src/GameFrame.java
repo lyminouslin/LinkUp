@@ -1,4 +1,5 @@
-import util.Utils;
+import util.Utils.Pair;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,10 +9,7 @@ import java.awt.event.WindowAdapter;//监听窗口事件
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 //4.27新增四个pack
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
+import java.util.Stack;
 
 /*panel装button ，button可以显示文字, 文字就是label*/
 
@@ -22,7 +20,7 @@ public class GameFrame extends JFrame {
     private static final int HEIGHT = 760;
 
     //补充状态变量
-    private boolean hardMode;
+    private final boolean mode;
     private int rows;//棋盘的行列数
     private int cols;
     private int patternCount;//要塞几个图案，简单模式5个，复杂模式12个
@@ -46,20 +44,20 @@ public class GameFrame extends JFrame {
     private Timer timer;
     private ImageIcon[] icons;//保存图案，java.swing自带
     private ImageGridCell[][] cells;//保存格子，再ImageGridCell类当中定义
-    private final Random random = new Random();//随机数生成器
-
+//    private final Random random = new Random();//随机数生成器
+    private final Stack<Pair> cellStack = new Stack<>();
     /* 构造函数，设置游戏界面，而不是在Main类中 */
     public GameFrame() {
         this(false);//构造器，如果未指定难度就默认false(简单模式)
     }
 
-    public GameFrame(boolean hardMode) {
+    public GameFrame(boolean mode) {
         super("连连看游戏");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null);
 
-        this.hardMode = hardMode;
+        this.mode = mode;
         setLayout(new BorderLayout(10, 10));
         add(createTopPanel(), BorderLayout.NORTH);
 
@@ -114,6 +112,7 @@ public class GameFrame extends JFrame {
             }
         });
         restartGame();
+
     }
 
     //上面有一个占位图标，这里创建一个简单的占位图标，显示“Image”字样，颜色是灰色
@@ -187,7 +186,7 @@ public class GameFrame extends JFrame {
     }
 
     private void setModeData() {
-        if (hardMode) {
+        if (mode) {
             rows = 10;
             cols = 10;
             patternCount = Constants.HARD_PATTERN_NUMBER;// HARD_PATTERN_NUMBER是12，因此这里把图标的数目改成了12
@@ -204,7 +203,7 @@ public class GameFrame extends JFrame {
 
     private void createBoardData() {
         gameCore = new GameCore(rows, cols, patternCount);
-        if (hardMode) {
+        if (mode) {
             fillHardBoard();//困难模式的棋盘是10行10列的，直接从左到右从上到下依次填充
         } else {
             fillEasyBoard();//简单模式的棋盘是4行9列的，分成两块，每块4行4列，剩下一列空着，依次填充
@@ -236,7 +235,7 @@ public class GameFrame extends JFrame {
     private void createPatternIcons() {
         int iconSize;
         //困难模式大尺寸，简单模式小尺寸
-        if (hardMode) {
+        if (mode) {
             iconSize = 48;
         } else {
             iconSize = 58;
@@ -251,23 +250,23 @@ public class GameFrame extends JFrame {
     /*函数逻辑要后期更改：目前只有两个图片，我们需要12个，我这里只判断了0.jpg和1.jpg的情况*/
     //按照图片编号加载对应的图片图标并返回
     private ImageIcon loadPatternIcon(int index, int iconSize) {
-        if (index == 1 || index == 2) {
-            String path;
-            if (index == 1) {
-                path = "resources/0.png";
-            } else {
-                path = "resources/1.png";
-            }
-
-            File file = new File(path);
-            if (file.exists()) {
-                ImageIcon originalIcon = new ImageIcon(path);//加载对应路径的图片
-                if (originalIcon.getImageLoadStatus() == MediaTracker.COMPLETE) {//如果图片已经加载成功。MediaTracker是一个工具类，用于跟踪媒体对象的加载状态，COMPLETE表示加载完成
-                    Image scaledImage = originalIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
-                    return new ImageIcon(scaledImage);
-                }
-            }
-        }
+//        if (index == 1 || index == 2) {
+//            String path;
+//            if (index == 1) {
+//                path = "resources/0.png";
+//            } else {
+//                path = "resources/1.png";
+//            }
+//
+//            File file = new File(path);
+//            if (file.exists()) {
+//                ImageIcon originalIcon = new ImageIcon(path);//加载对应路径的图片
+//                if (originalIcon.getImageLoadStatus() == MediaTracker.COMPLETE) {//如果图片已经加载成功。MediaTracker是一个工具类，用于跟踪媒体对象的加载状态，COMPLETE表示加载完成
+//                    Image scaledImage = originalIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
+//                    return new ImageIcon(scaledImage);
+//                }
+//            }
+//        }
 
         //如果不存在对应的图片，就返回一个自己画的图标，函数见下方
         return createDrawnIcon(index, iconSize);
@@ -290,9 +289,9 @@ public class GameFrame extends JFrame {
                 new Color(230, 230, 230)
         };
 
-        //先创建空白画布，iconsize表示宽和高，ARGB表示每个像素点包含alpha(透明度)和rgb三色
+        //先创建空白画布，icon-size表示宽和高，ARGB表示每个像素点包含alpha(透明度)和rgb三色
         BufferedImage img = new BufferedImage(iconSize, iconSize, BufferedImage.TYPE_INT_ARGB);
-        //Graphics2D和bufferedimage的区别是，前者是一个画笔，可以在后者这个画布上进行绘画
+        //Graphics2D和buffered-image的区别是，前者是一个画笔，可以在后者这个画布上进行绘画
         Graphics2D g2d = img.createGraphics();
         g2d.setColor(colors[(number - 1) % colors.length]);
         g2d.fillRoundRect(2, 2, iconSize - 4, iconSize - 4, 16, 16);//填充一个圆角矩形，参数分别是左上角坐标，宽高，圆角弧度
@@ -350,19 +349,38 @@ public class GameFrame extends JFrame {
         if (cell.getValue() == 0) {
             return;
         }
+        if (cellStack.isEmpty()) {
+            Pair selectedCell = new Pair(cell.getRow(), cell.getCol());
+            cellStack.add(selectedCell);
+            cell.setChosen(true);
+        } else {
+            Pair selectedCell = cellStack.pop();
+            int x = cell.getRow();
+            int y = cell.getCol();
+            int _x = selectedCell.x;
+            int _y = selectedCell.y;
+            cell.setChosen(x != _x || y != _y);
+            Timer timer1 = new Timer(100, e -> {
+                if ((gameCore.getGrid(x, y) == gameCore.getGrid(_x, _y)) && (x != _x) && (y != _y)) {
+                    gameCore.setGrid(x, y, 0);
+                    gameCore.setGrid(_x, _y, 0);
+                    cells[x][y].resetValue();
+                    cells[_x][_y].resetValue();
+                } else {
+                    cells[x][y].toggleRed();
+                    cells[_x][_y].toggleRed();
+                }
+                Timer timer2 = new Timer(100, e1 -> {
+                    cells[x][y].setChosen(false);
+                    cells[_x][_y].setChosen(false);
+                });
+                timer2.setRepeats(false);
+                timer2.start();
+            });
+            timer1.setRepeats(false);
+            timer1.start();
 
-        //如果点击了已经选中的格子，就取消选择
-        if (selectedRow == cell.getRow() && selectedCol == cell.getCol()) {
-            clearSelection();
-            return;
         }
-
-        //先取消选择
-        clearSelection();
-        //设定新格子的行列，并且把这个格子设定为选中状态
-        selectedRow = cell.getRow();
-        selectedCol = cell.getCol();
-        cell.setChosen(true);
     }
 
     //清除选中状态
@@ -408,7 +426,7 @@ public class GameFrame extends JFrame {
         int remainingPairs = countRemainingPairs();
         int finishedPairs = totalPairCount - remainingPairs;
 
-        if (hardMode) {
+        if (mode) {
             modeLabel.setText("当前模式：困难模式");
         } else {
             modeLabel.setText("当前模式：简单模式");
@@ -446,11 +464,9 @@ public class GameFrame extends JFrame {
 }
 
 class ImageGridCell extends JPanel {
-    private final Color normalColor = new Color(240, 240, 240);
-    private final Color emptyColor = new Color(245, 245, 245);
     private final int row;
     private final int col;
-    private final int value;
+    private int value;
     private final JLabel imageLabel;
 
     public ImageGridCell(ImageIcon icon) {
@@ -463,6 +479,7 @@ class ImageGridCell extends JPanel {
         this.value = value;
 
         setLayout(new BorderLayout());
+        Color normalColor = new Color(240, 240, 240);
         setBackground(normalColor);
         setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
         setOpaque(true);
@@ -471,6 +488,7 @@ class ImageGridCell extends JPanel {
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(imageLabel, BorderLayout.CENTER);
 
+        Color emptyColor = new Color(245, 245, 245);
         if (value == 0) {
             setBackground(emptyColor);
             setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -495,7 +513,7 @@ class ImageGridCell extends JPanel {
         }
 
         if (chosen) {
-            setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+            setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
         } else {
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
         }
@@ -503,6 +521,15 @@ class ImageGridCell extends JPanel {
     }
 
     public void toggleRed() {
-        setChosen(true);
+        setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+        repaint();
+    }
+    public void resetValue() {
+        this.value = 0;
+        Color emptyColor = new Color(245, 245, 245);
+        setBackground(emptyColor);
+        setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        imageLabel.setIcon(null);
+        repaint();
     }
 }
