@@ -10,6 +10,7 @@ import java.awt.event.WindowAdapter;//监听窗口事件
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 //4.27新增四个pack
+import java.util.ArrayList;
 import java.util.Stack;
 
 /*panel装button ，button可以显示文字, 文字就是label*/
@@ -30,6 +31,7 @@ public class GameFrame extends JFrame {
     private int leftSeconds;
     private int usedSeconds;
     private int score;//得分
+    private int comboCount;//连续消除次数
 
     private GameCore gameCore;//存储棋盘数据
     private final JPanel gridPanel;//格子
@@ -39,10 +41,12 @@ public class GameFrame extends JFrame {
     private JLabel pairLabel;//剩余对数
     private JLabel progressLabel;//关卡进度
     private JLabel modeLabel;//模式标签
+    private JLabel actionLabel;//显示上一步操作
     private Timer timer;
     private ImageIcon[] icons;//保存图案，java.swing自带
     private ImageGridCell[][] cells;//保存格子，再ImageGridCell类当中定义
 //    private final Random random = new Random();//随机数生成器
+    private ArrayList<Pair> linkPath;
     private final Stack<Pair> cellStack = new Stack<>();
     /* 构造函数，设置游戏界面，而不是在Main类中 */
     public GameFrame(boolean mode) {
@@ -55,7 +59,31 @@ public class GameFrame extends JFrame {
         setLayout(new BorderLayout(10, 10));
         add(createTopPanel(), BorderLayout.NORTH);
 
-        gridPanel = new JPanel();
+        // 创建一个Jpanel的对象，但是重写了paint，也就是匿名子类
+        gridPanel = new JPanel() {
+            @Override
+            public void paint(Graphics g) {
+                super.paint(g);
+                // 如果画线路径不合法，直接不画
+                if (linkPath == null || linkPath.size() < 2 || cells == null) {
+                    return;
+                }
+
+                // 复制一个画笔，然后颜色为橘色
+                Graphics2D pen = (Graphics2D) g.create();
+                pen.setColor(Color.ORANGE);// 设置颜色和笔触，我们选择高亮，因此需要把颜色设置成橙色
+                pen.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                for (int i = 1; i < linkPath.size(); i++) {
+                    Pair p1 = linkPath.get(i - 1);// 第一个端点
+                    Pair p2 = linkPath.get(i);// 第二个端点
+                    Rectangle r1 = cells[p1.x][p1.y].getBounds();
+                    Rectangle r2 = cells[p2.x][p2.y].getBounds();
+                    pen.drawLine(r1.x + r1.width / 2, r1.y + r1.height / 2,
+                            r2.x + r2.width / 2, r2.y + r2.height / 2);
+                } // 从第一个端点的中心到第二个端点的中心之间画一个直线
+                pen.dispose();
+            }
+        };
         gridPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         gridPanel.setBackground(new Color(245, 245, 245));
         add(gridPanel, BorderLayout.CENTER);
@@ -154,10 +182,10 @@ public class GameFrame extends JFrame {
         buttonPanel.add(restartButton);
         buttonPanel.add(backButton);
 
-        JLabel tipLabel = new JLabel("这里先把初始化和状态栏做出来，后面再接完整消除规则。", SwingConstants.CENTER);
+        actionLabel = new JLabel("上一步：暂无操作", SwingConstants.CENTER);
 
         bottomPanel.add(buttonPanel, BorderLayout.NORTH);//按钮在上面
-        bottomPanel.add(tipLabel, BorderLayout.SOUTH);//提示在下面
+        bottomPanel.add(actionLabel, BorderLayout.SOUTH);//提示在下面
         return bottomPanel;
     }
 
@@ -168,8 +196,10 @@ public class GameFrame extends JFrame {
 
         //时间和分数全部归零
         score = 0;
+        comboCount = 0;
         usedSeconds = 0;
         leftSeconds = totalSeconds;
+        actionLabel.setText("上一步：暂无操作");
         //刷新界面，更新标签，开始计时
         refreshBoard();
         refreshLabels();
@@ -345,26 +375,67 @@ public class GameFrame extends JFrame {
             return;
         }
 
+        // 如果玩家当前没有选中的格子
         if (cellStack.isEmpty()) {
             cellStack.add(currentCell);
             cell.setChosen(true);
         } else {
             Pair selectedCell = cellStack.pop();
+            //第一次选中格子的坐标
             int _x = selectedCell.x;
             int _y = selectedCell.y;
-            cell.setChosen(x != _x || y != _y);
+
+            // 第二次点到同一个格子，就取消选择
+            if (x == _x && y == _y) {
+                cells[_x][_y].setChosen(false);
+                return;
+            }
+
+            int currentValue = gameCore.getGrid(x, y);
+            int selectedValue = gameCore.getGrid(_x, _y);
+            ArrayList<Pair> path = GameMethods.findLinkPath(gameCore, currentCell, selectedCell);
+            // 两个图案不同：第一个取消，第二个变成新的选中格子
+            if (currentValue != selectedValue) {
+                comboCount = 0;
+                actionLabel.setText("上一步：图案不同，连消中断");
+                JOptionPane.showMessageDialog(this, "图案不同，不可连线");
+                cells[_x][_y].setChosen(false);
+                cells[x][y].setChosen(true);
+                cellStack.add(currentCell);
+                return;
+            }
+
+            cell.setChosen(true);
             Timer timer1 = new Timer(100, e -> {
-//                if ((gameCore.getGrid(x, y) == gameCore.getGrid(_x, _y)) && ((x != _x) || (y != _y))) {
+                // 如果支持连消，那么连续消除系数加1
                 if (GameMethods.eliminatePattern(gameCore, currentCell, selectedCell)) {
+                    linkPath = path; // 如果能够消除，那么对于消除的画一下
+                    gridPanel.repaint();
+                    comboCount++;
+
+                    // 任务4.2：基础分是10分，连消次数大于等于3之后，每一次递增+5分
+                    int addScore = 10;
+                    if (comboCount >= 3) {
+                        addScore = addScore + (comboCount - 2) * 5;
+                    }
+
+                    score = score + addScore;
+                    actionLabel.setText("上一步：消除了图案" + currentValue + "×2，+" + addScore + "分，连消×" + comboCount);
                     cells[x][y].resetValue();
                     cells[_x][_y].resetValue();
+                    refreshLabels();
                 } else {
+                    comboCount = 0;
+                    actionLabel.setText("上一步：图案相同，但不可连线，连消中断");
+                    JOptionPane.showMessageDialog(this, "您选择了不可连线的路径");
                     cells[x][y].toggleRed();
                     cells[_x][_y].toggleRed();
                 }
-                Timer timer2 = new Timer(100, e1 -> {
+                Timer timer2 = new Timer(220, e1 -> {
                     cells[x][y].setChosen(false);
                     cells[_x][_y].setChosen(false);
+                    linkPath = null;
+                    gridPanel.repaint();
                 });
                 timer2.setRepeats(false);
                 timer2.start();
@@ -396,13 +467,13 @@ public class GameFrame extends JFrame {
 
             if (countRemainingPairs() == 0) {
                 timer.stop();
-                JOptionPane.showMessageDialog(this, "全部消除，顺利过关！");
+                JOptionPane.showMessageDialog(this, "恭喜！本局游戏结束，您的积分为" + score + "分，用时为" + usedSeconds + "秒");
                 dispose();
                 WindowManager.showMainWindow();
             }
             if (leftSeconds == 0) {
                 timer.stop();
-                JOptionPane.showMessageDialog(this, "时间到，这一局结束。");
+                JOptionPane.showMessageDialog(this, "失败：时间到，本局游戏结束。");
                 restartGame();
             }
         });
