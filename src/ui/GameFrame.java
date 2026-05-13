@@ -1,3 +1,6 @@
+package ui;
+import main.*;
+
 import util.Utils.Pair;
 import javax.swing.*;
 import java.awt.*;
@@ -27,9 +30,6 @@ public class GameFrame extends JFrame {
     private int leftSeconds;
     private int usedSeconds;
     private int score;//得分
-
-    private int selectedRow = -1;//当前被选中的格子
-    private int selectedCol = -1;
 
     private GameCore gameCore;//存储棋盘数据
     private final JPanel gridPanel;//格子
@@ -170,9 +170,6 @@ public class GameFrame extends JFrame {
         score = 0;
         usedSeconds = 0;
         leftSeconds = totalSeconds;
-        selectedRow = -1;
-        selectedCol = -1;
-
         //刷新界面，更新标签，开始计时
         refreshBoard();
         refreshLabels();
@@ -334,6 +331,7 @@ public class GameFrame extends JFrame {
 
     //处理用户点击到图片后的行为
     private void handleCellClick(ImageGridCell cell) {
+//        long start = System.nanoTime();
         int x = cell.getRow();
         int y = cell.getCol();
         Pair currentCell = new Pair(x, y);
@@ -375,19 +373,8 @@ public class GameFrame extends JFrame {
             timer1.setRepeats(false);
             timer1.start();
         }
-    }
-
-    //清除选中状态
-    private void clearSelection() {
-        if (selectedRow != -1 && selectedCol != -1) {
-            if (cells[selectedRow][selectedCol] != null) {
-                cells[selectedRow][selectedCol].setChosen(false);//取消高亮
-            }
-        }
-
-        //现在没有选择任何格子
-        selectedRow = -1;
-        selectedCol = -1;
+//        long end = System.nanoTime();
+//        System.out.printf("Mouse click costs: %d ms.\n", (end - start) / 1_000_000);
     }
 
     //计时器启动器
@@ -407,10 +394,16 @@ public class GameFrame extends JFrame {
 
             refreshLabels();//刷新标签,当前界面不再保留
 
-            if (leftSeconds == 0) {//
+            if (countRemainingPairs() == 0) {
                 timer.stop();
-                clearSelection();
+                JOptionPane.showMessageDialog(this, "全部消除，顺利过关！");
+                dispose();
+                WindowManager.showMainWindow();
+            }
+            if (leftSeconds == 0) {
+                timer.stop();
                 JOptionPane.showMessageDialog(this, "时间到，这一局结束。");
+                restartGame();
             }
         });
         timer.start();

@@ -1,9 +1,11 @@
+package ui;
+
 import javax.swing.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.Map;
+
+import storage.UserStorage;
+import util.PasswordUtil;
 
 public class Register {
     public static JFrame createRegisterWindow() {
@@ -47,41 +49,20 @@ public class Register {
                 return;
             }
 
-            boolean exists = false;
+            Map<String, String> users = UserStorage.loadUsers();
 
-            try {
-                //重复性检查，即不能存在两个重复的用户名
-                Scanner in = new Scanner(new File("src/Users.txt"));
-                while (in.hasNext()) {
-                    String currentUsername = in.next();
-                    if (in.hasNext()) {
-                        in.next();
-                    }
-
-                    if (currentUsername.equals(newUser)) {
-                        exists = true;
-                        break;
-                    }
-                }
-                in.close();
-            } catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(registerFrame, "User file not found.");
-                return;
-            }
-
-            if (exists) {
+            if (users.containsKey(newUser)) {
                 JOptionPane.showMessageDialog(registerFrame, "Account already exists.");
                 return;
             }
 
+            String encryptedPassword = PasswordUtil.encrypt(newPassword);
+
             try {
-                //把新账号和新密码追加写入Users.txt
-                FileWriter writer = new FileWriter("src/Users.txt", true);
-                writer.write(System.lineSeparator() + newUser + " " + newPassword);
-                writer.close();
+                UserStorage.addUser(newUser, encryptedPassword);
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(registerFrame, "Register failed.");
-                return;
+                JOptionPane.showMessageDialog(registerFrame, "Registration failed.");
+                throw new RuntimeException(ex);
             }
 
             JOptionPane.showMessageDialog(registerFrame, "Register success!");

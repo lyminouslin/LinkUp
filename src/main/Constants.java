@@ -1,3 +1,5 @@
+package main;
+
 public class Constants {
     //私有化构造
     private Constants() {}

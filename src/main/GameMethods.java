@@ -1,3 +1,5 @@
+package main;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -51,7 +53,7 @@ public class GameMethods {
         }
         generatePattern(game, a_, b_, bag);
     }
-    static void generatePattern(GameCore game) {
+    public static void generatePattern(GameCore game) {
         int area = game.getCols() * game.getRows();
         bag = buildPatternBag(area / 2, game.pattern_number);
         Pair a, b;
@@ -61,7 +63,7 @@ public class GameMethods {
         b = new Pair(init_x, init_y + 1);
         generatePattern(game, a, b, bag);
     }
-    static boolean eliminatePattern(GameCore game, Pair a, Pair b) {
+    public static boolean eliminatePattern(GameCore game, Pair a, Pair b) {
         boolean result = false;
         if (eliminationInvalid(game, a, b)) {
             game.setGrid(a.x, a.y, 0);
@@ -85,8 +87,8 @@ public class GameMethods {
                 if (i == a.x && i == b.x) return true; // 如果在一条线上直接返回true
                 if (reachableInCol(game, a.x, i, a.y)
                     && reachableInCol(game, i, b.x, b.y)
-                    && game.getGrid(i, a.y) == 0
-                    && game.getGrid(i, b.y) == 0) return true; // 保证连线的交点处是合法的
+                    && (game.getGrid(i, a.y) == 0 || (i == a.x))
+                    && (game.getGrid(i, b.y) == 0 || (i == b.x))) return true; // 保证连线的交点处是合法的
             }
         }
         // 再看竖线段能否存在
@@ -95,8 +97,8 @@ public class GameMethods {
                 if (i == a.y && i == b.y) return true;
                 if (reachableInRow(game, a.x, i, a.y)
                     && reachableInRow(game, b.x, b.y, i)
-                    && game.getGrid(a.x, i) == 0
-                    && game.getGrid(b.x, i) == 0) return true;
+                    && (game.getGrid(a.x, i) == 0 ||  (i == a.y))
+                    && (game.getGrid(b.x, i) == 0 ||  (i == b.y))) return true;
             }
         }
         return false;
@@ -107,9 +109,9 @@ public class GameMethods {
             y1 = y2;
             y2 = tmp;
         }
-        if (y1 == y2) {
-            return game.getGrid(x, y1) == 0;
-        }
+//        if (y1 == y2) {
+//            return game.getGrid(x, y1) == 0;
+//        }
         for (int i = y1 + 1; i < y2; i++) {
             if (game.getGrid(x, i) != 0) return false;
         }
@@ -121,9 +123,9 @@ public class GameMethods {
             x1 = x2;
             x2 = tmp;
         }
-        if (x1 == x2) {
-            return game.getGrid(x1, y) == 0;
-        }
+//        if (x1 == x2) {
+//            return game.getGrid(x1, y) == 0;
+//        }
         for (int i = x1 + 1; i < x2; i++) {
             if (game.getGrid(i, y) != 0) return false;
         }

@@ -1,7 +1,10 @@
+package ui;
+
 import javax.swing.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.util.Map;
+
+import storage.UserStorage;
+import util.PasswordUtil;
 
 public class Login {
     //取消了main函数，改成showLoginWindow方法，以便在Main类中调用
@@ -39,29 +42,15 @@ public class Login {
             String thisUser = username.getText();
             //getPassword返回char[]，我们要把它转换到String
             String thisPassword = new String(password.getPassword());
-            boolean match = false;
 
-            try {
-                //从Users.txt中读取已经注册的账号和密码
-                Scanner in = new Scanner(new File("src/Users.txt"));
-                while (in.hasNext()) {
-                    String currentUsername = in.next();
-                    String currentPassword = in.next();
-
-                    //如果账号和密码都相同，就说明登录成功
-                    if (currentUsername.equals(thisUser)
-                            && currentPassword.equals(thisPassword)) {
-                        match = true;
-                        break;
-                    }
-                }
-                in.close();
-            } catch (FileNotFoundException ex) {
+            Map<String, String> users = UserStorage.loadUsers();
+            String storedPassword = users.get(thisUser);
+            //如果账号和密码都相同，就说明登录成功
+            if (!users.containsKey(thisUser)) {
                 JOptionPane.showMessageDialog(loginFrame, "User file not found.");
                 return;
             }
-
-            if (match) {
+            if (PasswordUtil.verify(thisPassword, storedPassword)) {
                 JOptionPane.showMessageDialog(loginFrame, "Welcome!");
                 //如果用户成功进入游戏系统那接下来就是选择困难/简单mode
                 Boolean hardMode = DifficultySelector.chooseDifficulty(loginFrame);

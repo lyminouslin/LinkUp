@@ -1,3 +1,5 @@
+package main;
+
 import java.util.Scanner;
 import java.util.Random;
 import static util.Utils.Pair;
