@@ -82,13 +82,21 @@ public class GameMethods {
         // 然后先看横线段能否存在
         for (int i = 0; i < game.getRows(); i++) {
             if (reachableInRow(game, i, a.y, b.y)) {
-                if (reachableInCol(game, a.x, i, a.y) && reachableInCol(game, i, b.x, b.y)) return true;
+                if (i == a.x && i == b.x) return true; // 如果在一条线上直接返回true
+                if (reachableInCol(game, a.x, i, a.y)
+                    && reachableInCol(game, i, b.x, b.y)
+                    && game.getGrid(i, a.y) == 0
+                    && game.getGrid(i, b.y) == 0) return true; // 保证连线的交点处是合法的
             }
         }
         // 再看竖线段能否存在
         for (int i = 0; i < game.getCols(); i++) {
             if (reachableInCol(game, a.x, b.x, i)) {
-                if (reachableInRow(game, a.x, i, a.y) && reachableInRow(game, b.x, b.y, i)) return true;
+                if (i == a.y && i == b.y) return true;
+                if (reachableInRow(game, a.x, i, a.y)
+                    && reachableInRow(game, b.x, b.y, i)
+                    && game.getGrid(a.x, i) == 0
+                    && game.getGrid(b.x, i) == 0) return true;
             }
         }
         return false;

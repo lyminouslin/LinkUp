@@ -36,9 +36,6 @@ public class GameCore {
     public int getGrid(int i, int j) {
         return grid[i][j];
     }
-    public int getGrid(Pair p) {
-        return grid[p.x][p.y];
-    }
     public void setGrid(int i, int j, int value) {
         this.grid[i][j] = value;
     }
