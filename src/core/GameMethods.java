@@ -89,15 +89,17 @@ public class GameMethods {
     if (a.x == b.x && a.y == b.y) return null;
     if (game.getGrid(a.x, a.y) == 0 || game.getGrid(b.x, b.y) == 0) return null;
 
+    int currentMinLength = Integer.MAX_VALUE;
+    ArrayList<Pair> path = new ArrayList<>();
+
     // 先看横线段能否存在
     for (int i = 0; i < game.getRows(); i++) {
         if (reachableInRow(game, i, a.y, b.y)) {
             // 直线连接
             if (i == a.x && i == b.x) {
-                ArrayList<Pair> path = new ArrayList<>();
+                path.clear();
                 path.add(a);
                 path.add(b);
-                return path;
             }
 
             // 两次转弯：a到(i, a.y)到(i, b.y)到b
@@ -105,11 +107,10 @@ public class GameMethods {
                     && reachableInCol(game, i, b.x, b.y)  
                     && (game.getGrid(i, a.y) == 0 || i == a.x) //表示“转折点”空隙
                     && (game.getGrid(i, b.y) == 0 || i == b.x)) {
-                ArrayList<Pair> path = new ArrayList<>();
+                path.clear();
                 path.add(a);
                 path.add(new Pair(i, a.y)); path.add(new Pair(i, b.y));// 加入中间两个转折点
                 path.add(b);
-                return path;
             }
         }
     }
@@ -119,10 +120,9 @@ public class GameMethods {
         if (reachableInCol(game, a.x, b.x, i)) {
             // 直线连接
             if (i == a.y && i == b.y) {
-                ArrayList<Pair> path = new ArrayList<>();
+                path.clear();
                 path.add(a);
                 path.add(b);
-                return path;
             }
 
             // 两次转弯：a到(a.x, i)到(b.x, i)再到b
@@ -130,17 +130,16 @@ public class GameMethods {
                     && reachableInRow(game, b.x, b.y, i) // 首先是没有障碍物
                     && (game.getGrid(a.x, i) == 0 || i == a.y)
                     && (game.getGrid(b.x, i) == 0 || i == b.y)) {
-                ArrayList<Pair> path = new ArrayList<>();
+                path.clear();
                 path.add(a);
                 path.add(new Pair(a.x, i));
                 path.add(new Pair(b.x, i));
                 path.add(b);
-                return path;
             }
         }
     }
 
-    return null;
+    return path;
 }
 
 
