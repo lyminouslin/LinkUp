@@ -72,8 +72,6 @@ public class GameMethods {
         if (eliminationInvalid(game, a, b)) {
             game.setGrid(a.x, a.y, 0);
             game.setGrid(b.x, b.y, 0);
-            System.out.println(a.x + " " + a.y);
-            System.out.println(b.x + " " + b.y);
             result = true;
         }
         return result;
@@ -82,6 +80,10 @@ public class GameMethods {
     static boolean eliminationInvalid(GameCore game, Pair a, Pair b){
         return findLinkPath(game, a, b) != null;
     }
+
+    static int getLength(int x0, int x1, int x2) { return Math.abs(x1 - x0) + Math.abs(x2 - x0); }
+
+    static int dist(int x1, int x2) {return Math.abs(x1 - x2); }
 
     public static ArrayList<Pair> findLinkPath(GameCore game, Pair a, Pair b) {
     // 首先排除图案不同、点重合、空格子的情况
@@ -96,17 +98,20 @@ public class GameMethods {
     for (int i = 0; i < game.getRows(); i++) {
         if (reachableInRow(game, i, a.y, b.y)) {
             // 直线连接
-            if (i == a.x && i == b.x) {
+            if (i == a.x && i == b.x && dist(a.y, b.y) < currentMinLength) {
+                currentMinLength = dist(a.y, b.y);
                 path.clear();
                 path.add(a);
                 path.add(b);
             }
-
             // 两次转弯：a到(i, a.y)到(i, b.y)到b
             if (reachableInCol(game, a.x, i, a.y) // 前两个判断条件，表示第一个竖线和第二个竖线之间有没有空隙
-                    && reachableInCol(game, i, b.x, b.y)  
-                    && (game.getGrid(i, a.y) == 0 || i == a.x) //表示“转折点”空隙
-                    && (game.getGrid(i, b.y) == 0 || i == b.x)) {
+                && reachableInCol(game, i, b.x, b.y)
+                && (game.getGrid(i, a.y) == 0 || i == a.x) //表示“转折点”空隙
+                && (game.getGrid(i, b.y) == 0 || i == b.x)
+                && getLength(i, a.x, b.x) + dist(a.y, b.y) < currentMinLength)
+            {
+                currentMinLength = getLength(i, a.x, b.x) +  dist(a.y, b.y);
                 path.clear();
                 path.add(a);
                 path.add(new Pair(i, a.y)); path.add(new Pair(i, b.y));// 加入中间两个转折点
@@ -119,17 +124,20 @@ public class GameMethods {
     for (int i = 0; i < game.getCols(); i++) {
         if (reachableInCol(game, a.x, b.x, i)) {
             // 直线连接
-            if (i == a.y && i == b.y) {
+            if (i == a.y && i == b.y && dist(a.x, b.x) < currentMinLength) {
+                currentMinLength = dist(a.x, b.x);
                 path.clear();
                 path.add(a);
                 path.add(b);
             }
-
             // 两次转弯：a到(a.x, i)到(b.x, i)再到b
             if (reachableInRow(game, a.x, i, a.y) // 在a的行，
-                    && reachableInRow(game, b.x, b.y, i) // 首先是没有障碍物
-                    && (game.getGrid(a.x, i) == 0 || i == a.y)
-                    && (game.getGrid(b.x, i) == 0 || i == b.y)) {
+                && reachableInRow(game, b.x, b.y, i) // 首先是没有障碍物
+                && (game.getGrid(a.x, i) == 0 || i == a.y)
+                && (game.getGrid(b.x, i) == 0 || i == b.y)
+                && getLength(i, a.y, b.y) + dist(a.x, b.x) < currentMinLength)
+            {
+                currentMinLength = getLength(i, a.x, b.x) +  dist(a.y, b.y);
                 path.clear();
                 path.add(a);
                 path.add(new Pair(a.x, i));
