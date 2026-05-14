@@ -1,10 +1,9 @@
 package ui;
 
+import storage.UserStorage;
+
 import javax.swing.*;
 import java.util.Map;
-
-import storage.UserStorage;
-import util.PasswordUtil;
 
 public class Login {
     //取消了main函数，改成showLoginWindow方法，以便在Main类中调用
@@ -44,13 +43,13 @@ public class Login {
             String thisPassword = new String(password.getPassword());
 
             Map<String, String> users = UserStorage.loadUsers();
-            String storedPassword = users.get(thisUser);
+
             //如果账号和密码都相同，就说明登录成功
             if (!users.containsKey(thisUser)) {
                 JOptionPane.showMessageDialog(loginFrame, "User file not found.");
                 return;
             }
-            if (PasswordUtil.verify(thisPassword, storedPassword)) {
+            if (UserStorage.verifyUser(thisUser, thisPassword)) {
                 JOptionPane.showMessageDialog(loginFrame, "Welcome!");
                 //如果用户成功进入游戏系统那接下来就是选择困难/简单mode
                 Boolean hardMode = DifficultySelector.chooseDifficulty(loginFrame);

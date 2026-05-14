@@ -1,10 +1,10 @@
 package storage;
 
+import util.PasswordUtil;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-
-import util.PasswordUtil;
 
 public class UserStorage {
     private static final String USER_DATA_FILE = "users.obj";

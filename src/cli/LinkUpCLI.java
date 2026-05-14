@@ -1,7 +1,12 @@
-package main;
+package cli;
 
-import java.util.Scanner;
+import constants.Constants;
+import core.GameCore;
+import core.GameMethods;
+
 import java.util.Random;
+import java.util.Scanner;
+
 import static util.Utils.Pair;
 
 public class LinkUpCLI {
@@ -21,10 +26,6 @@ public class LinkUpCLI {
 
         int rows = input.nextInt();
         int cols = input.nextInt();
-        int init_x = rand.nextInt(rows);
-        int init_y = rand.nextInt(cols - 1);
-        Pair A0 = new Pair(init_x, init_y);
-        Pair B0 = new Pair(init_x, init_y + 1);
 
         GameCore game = new GameCore(rows, cols, pattern_number);
         GameMethods.generatePattern(game);

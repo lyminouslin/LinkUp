@@ -1,11 +1,11 @@
 package ui;
 
+import storage.UserStorage;
+import util.PasswordUtil;
+
 import javax.swing.*;
 import java.io.IOException;
 import java.util.Map;
-
-import storage.UserStorage;
-import util.PasswordUtil;
 
 public class Register {
     public static JFrame createRegisterWindow() {

@@ -1,10 +1,10 @@
-package main;
+package core;
+
+import util.Utils.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-
-import util.Utils.Pair;
 
 public class GameMethods {
     static Random rand = new Random();
@@ -80,8 +80,7 @@ public class GameMethods {
     }
 
     static boolean eliminationInvalid(GameCore game, Pair a, Pair b){
-        if(findLinkPath(game, a, b) == null) return false;
-        return true;
+        return findLinkPath(game, a, b) != null;
     }
 
     public static ArrayList<Pair> findLinkPath(GameCore game, Pair a, Pair b) {
@@ -152,9 +151,6 @@ public class GameMethods {
             y1 = y2;
             y2 = tmp;
         }
-//        if (y1 == y2) {
-//            return game.getGrid(x, y1) == 0;
-//        }
         for (int i = y1 + 1; i < y2; i++) {
             if (game.getGrid(x, i) != 0) return false;
         }
@@ -168,9 +164,6 @@ public class GameMethods {
             x1 = x2;
             x2 = tmp;
         }
-//        if (x1 == x2) {
-//            return game.getGrid(x1, y) == 0;
-//        }
         for (int i = x1 + 1; i < x2; i++) {
             if (game.getGrid(i, y) != 0) return false;
         }

@@ -3,7 +3,7 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
-public class EntryUI {
+public class Entry {
     // 显示主菜单
     public static void showMainMenu() {
         JFrame frame = createFrame();

@@ -1,5 +1,7 @@
 package ui;
-import main.*;
+import static constants.Constants.*;
+import core.GameCore;
+import core.GameMethods;
 
 import util.Utils.Pair;
 import javax.swing.*;
@@ -59,7 +61,7 @@ public class GameFrame extends JFrame {
         setLayout(new BorderLayout(10, 10));
         add(createTopPanel(), BorderLayout.NORTH);
 
-        // 创建一个Jpanel的对象，但是重写了paint，也就是匿名子类
+        // 创建一个JPanel的对象，但是重写了paint，也就是匿名子类
         gridPanel = new JPanel() {
             @Override
             public void paint(Graphics g) {
@@ -69,7 +71,7 @@ public class GameFrame extends JFrame {
                     return;
                 }
 
-                // 复制一个画笔，然后颜色为橘色
+                // 复制一支画笔，然后颜色为橘色
                 Graphics2D pen = (Graphics2D) g.create();
                 pen.setColor(Color.ORANGE);// 设置颜色和笔触，我们选择高亮，因此需要把颜色设置成橙色
                 pen.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -210,13 +212,13 @@ public class GameFrame extends JFrame {
         if (mode) {
             rows = 10;
             cols = 10;
-            patternCount = Constants.HARD_PATTERN_NUMBER;// HARD_PATTERN_NUMBER是12，因此这里把图标的数目改成了12
+            patternCount = HARD_PATTERN_NUMBER;// HARD_PATTERN_NUMBER是12，因此这里把图标的数目改成了12
             totalPairCount = 50;//一共100个格子，所以50对
             totalSeconds = 240;//时间240秒
         } else {
             rows = 4;
             cols = 9;
-            patternCount = Constants.EASY_PATTERN_NUMBER;
+            patternCount = EASY_PATTERN_NUMBER;
             totalPairCount = 16;
             totalSeconds = 120;
         }
@@ -262,8 +264,8 @@ public class GameFrame extends JFrame {
             iconSize = 58;
         }
 
-        icons = new ImageIcon[Constants.HARD_PATTERN_NUMBER + 1];//因为图案编号是从1开始的，数组长度要加上1，以便和图案编号对应
-        for (int i = 1; i <= Constants.HARD_PATTERN_NUMBER; i++) {
+        icons = new ImageIcon[HARD_PATTERN_NUMBER + 1];//因为图案编号是从1开始的，数组长度要加上1，以便和图案编号对应
+        for (int i = 1; i <= HARD_PATTERN_NUMBER; i++) {
             icons[i] = loadPatternIcon(i, iconSize);
         }
     }
@@ -294,27 +296,11 @@ public class GameFrame extends JFrame {
     }
 
     private ImageIcon createDrawnIcon(int number, int iconSize) {
-        //创建颜色,参数从左到右分别是rgb三色
-        Color[] colors = new Color[]{
-                new Color(255, 204, 204),
-                new Color(255, 235, 179),
-                new Color(204, 255, 204),
-                new Color(204, 229, 255),
-                new Color(230, 204, 255),
-                new Color(255, 220, 185),
-                new Color(220, 255, 240),
-                new Color(240, 240, 180),
-                new Color(210, 210, 255),
-                new Color(255, 210, 230),
-                new Color(210, 255, 255),
-                new Color(230, 230, 230)
-        };
-
         //先创建空白画布，icon-size表示宽和高，ARGB表示每个像素点包含alpha(透明度)和rgb三色
         BufferedImage img = new BufferedImage(iconSize, iconSize, BufferedImage.TYPE_INT_ARGB);
         //Graphics2D和buffered-image的区别是，前者是一个画笔，可以在后者这个画布上进行绘画
         Graphics2D g2d = img.createGraphics();
-        g2d.setColor(colors[(number - 1) % colors.length]);
+        g2d.setColor(COLORS[(number - 1) % COLORS.length]);
         g2d.fillRoundRect(2, 2, iconSize - 4, iconSize - 4, 16, 16);//填充一个圆角矩形，参数分别是左上角坐标，宽高，圆角弧度
         g2d.setColor(Color.DARK_GRAY);
         g2d.setStroke(new BasicStroke(2));
