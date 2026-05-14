@@ -9,9 +9,11 @@ import util.Utils.Pair;
 public class GameMethods {
     static Random rand = new Random();
     static ArrayList<Integer> bag = null;
+
     private GameMethods() {
         rand.setSeed(System.currentTimeMillis());
     }
+
     static private void generatePattern(GameCore game, Pair a, Pair b, ArrayList<Integer> bag) {
         int pattern;
         int x1 = a.x, y1 = a.y, x2 = b.x, y2 = b.y;
@@ -53,6 +55,7 @@ public class GameMethods {
         }
         generatePattern(game, a_, b_, bag);
     }
+
     public static void generatePattern(GameCore game) {
         int area = game.getCols() * game.getRows();
         bag = buildPatternBag(area / 2, game.pattern_number);
@@ -63,6 +66,7 @@ public class GameMethods {
         b = new Pair(init_x, init_y + 1);
         generatePattern(game, a, b, bag);
     }
+
     public static boolean eliminatePattern(GameCore game, Pair a, Pair b) {
         boolean result = false;
         if (eliminationInvalid(game, a, b)) {
@@ -74,35 +78,74 @@ public class GameMethods {
         }
         return result;
     }
-    static boolean eliminationInvalid(GameCore game, Pair a, Pair b) {
-        // 如果两点要能在两个直角内可达，棋盘上必须存在一条横线段，从x1到x2可达，或竖线段从y1到y2可达。
-        // 所有的合法路径都应该是三折线形式，我们引入两个辅助函数进行处理。
-        // 首先排除两点不等的情况 和点重合的情况
-        if (game.getGrid(a.x, a.y) != game.getGrid(b.x, b.y)) return false;
-        if (a.x == b.x && a.y == b.y) return false;
-        if (game.getGrid(a.x, a.y) == 0 || game.getGrid(b.x, b.y) == 0) return false;
-        // 然后先看横线段能否存在
-        for (int i = 0; i < game.getRows(); i++) {
-            if (reachableInRow(game, i, a.y, b.y)) {
-                if (i == a.x && i == b.x) return true; // 如果在一条线上直接返回true
-                if (reachableInCol(game, a.x, i, a.y)
-                    && reachableInCol(game, i, b.x, b.y)
-                    && (game.getGrid(i, a.y) == 0 || (i == a.x))
-                    && (game.getGrid(i, b.y) == 0 || (i == b.x))) return true; // 保证连线的交点处是合法的
-            }
-        }
-        // 再看竖线段能否存在
-        for (int i = 0; i < game.getCols(); i++) {
-            if (reachableInCol(game, a.x, b.x, i)) {
-                if (i == a.y && i == b.y) return true;
-                if (reachableInRow(game, a.x, i, a.y)
-                    && reachableInRow(game, b.x, b.y, i)
-                    && (game.getGrid(a.x, i) == 0 ||  (i == a.y))
-                    && (game.getGrid(b.x, i) == 0 ||  (i == b.y))) return true;
-            }
-        }
-        return false;
+
+    static boolean eliminationInvalid(GameCore game, Pair a, Pair b){
+        if(findLinkPath(game, a, b) == null) return false;
+        return true;
     }
+
+    public static ArrayList<Pair> findLinkPath(GameCore game, Pair a, Pair b) {
+    // 首先排除图案不同、点重合、空格子的情况
+    if (game.getGrid(a.x, a.y) != game.getGrid(b.x, b.y)) return null;
+    if (a.x == b.x && a.y == b.y) return null;
+    if (game.getGrid(a.x, a.y) == 0 || game.getGrid(b.x, b.y) == 0) return null;
+
+    // 先看横线段能否存在
+    for (int i = 0; i < game.getRows(); i++) {
+        if (reachableInRow(game, i, a.y, b.y)) {
+            // 直线连接
+            if (i == a.x && i == b.x) {
+                ArrayList<Pair> path = new ArrayList<>();
+                path.add(a);
+                path.add(b);
+                return path;
+            }
+
+            // 两次转弯：a到(i, a.y)到(i, b.y)到b
+            if (reachableInCol(game, a.x, i, a.y) // 前两个判断条件，表示第一个竖线和第二个竖线之间有没有空隙
+                    && reachableInCol(game, i, b.x, b.y)  
+                    && (game.getGrid(i, a.y) == 0 || i == a.x) //表示“转折点”空隙
+                    && (game.getGrid(i, b.y) == 0 || i == b.x)) {
+                ArrayList<Pair> path = new ArrayList<>();
+                path.add(a);
+                path.add(new Pair(i, a.y)); path.add(new Pair(i, b.y));// 加入中间两个转折点
+                path.add(b);
+                return path;
+            }
+        }
+    }
+
+    // 再看竖线段能否存在
+    for (int i = 0; i < game.getCols(); i++) {
+        if (reachableInCol(game, a.x, b.x, i)) {
+            // 直线连接
+            if (i == a.y && i == b.y) {
+                ArrayList<Pair> path = new ArrayList<>();
+                path.add(a);
+                path.add(b);
+                return path;
+            }
+
+            // 两次转弯：a到(a.x, i)到(b.x, i)再到b
+            if (reachableInRow(game, a.x, i, a.y) // 在a的行，
+                    && reachableInRow(game, b.x, b.y, i) // 首先是没有障碍物
+                    && (game.getGrid(a.x, i) == 0 || i == a.y)
+                    && (game.getGrid(b.x, i) == 0 || i == b.y)) {
+                ArrayList<Pair> path = new ArrayList<>();
+                path.add(a);
+                path.add(new Pair(a.x, i));
+                path.add(new Pair(b.x, i));
+                path.add(b);
+                return path;
+            }
+        }
+    }
+
+    return null;
+}
+
+
+    // 在第x行，第y1和y2列之间是否存在障碍物
     static boolean reachableInRow(GameCore game, int x, int y1, int y2) {
         if (y1 > y2) {
             int tmp = y1;
@@ -117,6 +160,8 @@ public class GameMethods {
         }
         return true;
     }
+
+    // 在第y列当中，x1行到x2行之间有咩有障碍
     static boolean reachableInCol(GameCore game, int x1, int x2, int y) {
         if (x1 > x2) {
             int tmp = x1;
@@ -131,25 +176,23 @@ public class GameMethods {
         }
         return true;
     }
+
     static boolean isCoordinateValid(int x, int y, int rows, int cols) {
         return (0 <= x && x < rows && 0 <= y && y < cols);
     }
+
     static private ArrayList<Integer> buildPatternBag(int pairCount, int differentPatternCount) {
-        //list：存储的数据为图案编号，然后在后期，例如{1,2,3,4,5}，在后期取出来在棋盘上所表现得效果为
-        // 1 1 2 2 3 3 4 4 5 5(忽略换行)，也就是每两个格子放一个图案，图案的编号由list当中的数字决定
         ArrayList<Integer> bag = new ArrayList<>();
 
-        //先确保每一个编号都出现一次
         for (int i = 1; i <= differentPatternCount; i++) {
             bag.add(i);
         }
 
-        //当包里面的图案不足以摆满棋盘的时候就一直加
         while (bag.size() < pairCount) {
-            bag.add(rand.nextInt(differentPatternCount) + 1);//考虑到nextInt是从0开始，于是加1
+            bag.add(rand.nextInt(differentPatternCount) + 1);
         }
 
-        Collections.shuffle(bag);//打乱顺序
+        Collections.shuffle(bag);
         return bag;
     }
 }
