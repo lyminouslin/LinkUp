@@ -1,6 +1,7 @@
 package ui;
 
 import storage.UserStorage;
+import data.GlobalData;
 
 import javax.swing.*;
 import java.util.Map;
@@ -51,12 +52,14 @@ public class Login {
             }
             if (UserStorage.verifyUser(thisUser, thisPassword)) {
                 JOptionPane.showMessageDialog(loginFrame, "Welcome!");
+                GlobalData.currentUsername = thisUser;
                 //如果用户成功进入游戏系统那接下来就是选择困难/简单mode
-                Boolean hardMode = DifficultySelector.chooseDifficulty(loginFrame);
+//                Boolean hardMode = DifficultySelector.chooseDifficulty(loginFrame);
                 //如果是null(也就是取消或者退出)，直接返回登陆界面
-                if (hardMode == null) return;
+//                if (hardMode == null) return;
                 loginFrame.dispose();//关闭并释放这个窗口占用的资源
-                WindowManager.switchTo(new GameFrame(hardMode));
+//                WindowManager.switchTo(new GameFrame(hardMode));
+                WindowManager.switchTo(new MainMenuFrame());
             } else JOptionPane.showMessageDialog(loginFrame, "Wrong account or password.");
         });
 

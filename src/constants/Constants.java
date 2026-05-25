@@ -11,7 +11,8 @@ public class Constants {
     static public final int HARD_COLS = 10;
     static public final int EASY_ROWS = 4;
     static public final int EASY_COLS = 9;
-
+    static public final int MENU_LENGTH = 1200;
+    static public final int MENU_WIDTH = 900;
     static public final Color[] COLORS = new Color[]{
             new Color(255, 204, 204),
             new Color(255, 235, 179),

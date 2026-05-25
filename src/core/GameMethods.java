@@ -147,7 +147,8 @@ public class GameMethods {
         }
     }
 
-    return path;
+    if (!path.isEmpty()) return path;
+    else return null;
 }
 
 
