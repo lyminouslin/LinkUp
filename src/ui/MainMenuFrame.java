@@ -2,14 +2,19 @@
 package ui;
 
 import data.GlobalData;
+import storage.SaveStorage;
+import storage.SaveStorage.SaveData;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import static constants.Constants.MENU_LENGTH;
 import static constants.Constants.MENU_WIDTH;
 
 public class MainMenuFrame extends JFrame {
+    private DefaultListModel<String> saveModel;
 
     public MainMenuFrame() {
         setTitle("游戏大厅 - 连连看");
@@ -25,6 +30,13 @@ public class MainMenuFrame extends JFrame {
         add(createLeftPanel(), BorderLayout.WEST);      // 排行榜
         add(createCenterPanel(), BorderLayout.CENTER);  // 游戏选择
         add(createRightPanel(), BorderLayout.EAST);     // 存档
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowActivated(WindowEvent e) {
+                refreshSaveList();
+            }
+        });
 
         WindowManager.setMainFrame(this);
     }
@@ -52,10 +64,10 @@ public class MainMenuFrame extends JFrame {
 
         // 右侧：头像和设置
         JButton avatarBtn = new JButton("👤 更换头像");
-        avatarBtn.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        avatarBtn.setFont(new Font("Dialog", Font.PLAIN, 12));
 
-        JButton settingsBtn = new JButton("⚙️ 设置");
-        settingsBtn.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        JButton settingsBtn = new JButton("⚙ 设置");
+        settingsBtn.setFont(new Font("Dialog", Font.PLAIN, 12));
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.setOpaque(false);
@@ -78,7 +90,7 @@ public class MainMenuFrame extends JFrame {
 
         // 标题
         JLabel titleLabel = new JLabel("🏆 积分排行榜");
-        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 16));
+        titleLabel.setFont(new Font("Dialog", Font.BOLD, 16));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
@@ -91,7 +103,7 @@ public class MainMenuFrame extends JFrame {
         listModel.addElement("   小明 - 450分");
 
         JList<String> rankList = new JList<>(listModel);
-        rankList.setFont(new Font("微软雅黑", Font.PLAIN, 13));
+        rankList.setFont(new Font("Dialog", Font.PLAIN, 13));
         rankList.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         rankList.setFixedCellHeight(35);
 
@@ -125,7 +137,8 @@ public class MainMenuFrame extends JFrame {
 
         // 模式选项
         gbc.gridy++;
-        RoundedShadowButton classicBtn = new RoundedShadowButton("\uD83C\uDFAE 经典模式", RoundedShadowButton.Theme.SUCCESS);
+        RoundedShadowButton classicBtn = new RoundedShadowButton("🎮 经典模式", RoundedShadowButton.Theme.SUCCESS);
+        classicBtn.setFont(new Font("Dialog", Font.BOLD, 18));
         panel.add(classicBtn, gbc);
         classicBtn.addActionListener(e -> {
             GameFrame gameWindow = new GameFrame(false);
@@ -134,12 +147,19 @@ public class MainMenuFrame extends JFrame {
 
 
         gbc.gridy++;
-        RoundedShadowButton hardBtn = new RoundedShadowButton("\uD83C\uDFAE 困难模式", RoundedShadowButton.Theme.DANGER);
+        RoundedShadowButton hardBtn = new RoundedShadowButton("🔥 困难模式", RoundedShadowButton.Theme.DANGER);
+        hardBtn.setFont(new Font("Dialog", Font.BOLD, 18));
         panel.add(hardBtn, gbc);
         hardBtn.addActionListener(e -> {
             GameFrame gameWindow = new GameFrame(true);
             WindowManager.switchTo(gameWindow);
         });
+
+        gbc.gridy++;
+        RoundedShadowButton loadSaveBtn = new RoundedShadowButton("💾 加载存档", RoundedShadowButton.Theme.PRIMARY);
+        loadSaveBtn.setFont(new Font("Dialog", Font.BOLD, 18));
+        panel.add(loadSaveBtn, gbc);
+        loadSaveBtn.addActionListener(e -> loadSelectedSave());
 
         return panel;
     }
@@ -203,19 +223,16 @@ public class MainMenuFrame extends JFrame {
 
         // 标题
         JLabel titleLabel = new JLabel("💾 存档列表");
-        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 16));
+        titleLabel.setFont(new Font("Dialog", Font.BOLD, 16));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
         // 存档列表
-        DefaultListModel<String> saveModel = new DefaultListModel<>();
-        saveModel.addElement("📁 自动存档 - 2025-05-19");
-        saveModel.addElement("📁 存档1 - 4x4 经典");
-        saveModel.addElement("📁 存档2 - 6x6 挑战");
-        saveModel.addElement("📁 云端存档 - 未同步");
+        saveModel = new DefaultListModel<>();
+        refreshSaveList();
 
         JList<String> saveList = new JList<>(saveModel);
-        saveList.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        saveList.setFont(new Font("Dialog", Font.PLAIN, 12));
         saveList.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         saveList.setFixedCellHeight(40);
 
@@ -225,21 +242,96 @@ public class MainMenuFrame extends JFrame {
         JButton loadBtn = new JButton("加载存档");
         loadBtn.setBackground(new Color(76, 175, 80));
         loadBtn.setForeground(Color.WHITE);
+        loadBtn.addActionListener(e -> loadSelectedSave());
 
-        JButton saveBtn = new JButton("保存当前游戏");
-        saveBtn.setBackground(new Color(33, 150, 243));
-        saveBtn.setForeground(Color.WHITE);
-
-        JPanel btnPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        JPanel btnPanel = new JPanel(new GridLayout(1, 1, 5, 5));
         btnPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         btnPanel.add(loadBtn);
-        btnPanel.add(saveBtn);
 
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(btnPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+    
+    // 负责主菜单右边的存档区域
+    private void refreshSaveList() {
+        if (saveModel == null) {
+            return;
+        }
+
+        // 清空列表，检查登录状态，如果未登录，显示提示；如果已登录，尝试加载存档并显示信息
+        saveModel.clear();
+        if (!GlobalData.isLoggedIn || GlobalData.currentUsername == null) {
+            saveModel.addElement("📁 简单模式存档 - 请先登录");
+            saveModel.addElement("📁 困难模式存档 - 请先登录");
+            return;
+        }
+
+        addSaveInfo(false);
+        addSaveInfo(true);
+    }
+
+    //负责加载选中的存档
+    private void loadSelectedSave() {
+        if (!GlobalData.isLoggedIn || GlobalData.currentUsername == null) {
+            JOptionPane.showMessageDialog(this, "只有注册并登录的用户可以加载存档。");
+            return;
+        }
+
+        String[] options = {"简单模式存档", "困难模式存档"};
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "请选择要加载的存档",
+                "加载存档",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+        if (choice == -1) {
+            return;
+        }
+
+        boolean mode = choice == 1;
+        SaveData saveData;
+        try {
+            saveData = SaveStorage.loadSave(GlobalData.currentUsername, mode);
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, "存档被篡改过");
+            return;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "存档无效");
+            return;
+        }
+        if (saveData == null) {
+            JOptionPane.showMessageDialog(this, "当前用户还没有" + (mode ? "困难模式" : "简单模式") + "存档。");
+            return;
+        }
+
+        GameFrame gameWindow = new GameFrame(saveData);
+        WindowManager.switchTo(gameWindow);
+    }
+
+    private void addSaveInfo(boolean mode) {
+        SaveData saveData;
+        try {
+            saveData = SaveStorage.loadSave(GlobalData.currentUsername, mode);
+        } catch (SecurityException e) {
+            saveModel.addElement("存档被篡改过");
+            return;
+        } catch (Exception e) {
+            saveModel.addElement("存档无效");
+            return;
+        }
+        String modeName = mode ? "困难模式" : "简单模式";
+        if (saveData == null) {
+            saveModel.addElement("📁 " + modeName + "存档 - 空");
+        } else {
+            saveModel.addElement("📁 " + modeName + "存档 - " + saveData.score + "分，剩余" + saveData.leftSeconds + "秒");
+        }
     }
 
     public static void main(String[] args) {

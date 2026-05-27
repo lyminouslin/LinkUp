@@ -53,6 +53,7 @@ public class Login {
             if (UserStorage.verifyUser(thisUser, thisPassword)) {
                 JOptionPane.showMessageDialog(loginFrame, "Welcome!");
                 GlobalData.currentUsername = thisUser;
+                GlobalData.isLoggedIn = true;
                 //如果用户成功进入游戏系统那接下来就是选择困难/简单mode
 //                Boolean hardMode = DifficultySelector.chooseDifficulty(loginFrame);
                 //如果是null(也就是取消或者退出)，直接返回登陆界面

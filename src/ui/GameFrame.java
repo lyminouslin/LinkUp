@@ -3,6 +3,9 @@ import static constants.Constants.*;
 import core.GameCore;
 import core.GameMethods;
 
+import data.GlobalData;
+import storage.SaveStorage;
+import storage.SaveStorage.SaveData;
 import util.Utils.Pair;
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;//监听窗口事件
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 //4.27新增四个pack
 import java.util.ArrayList;
 import java.util.Stack;
@@ -51,7 +55,17 @@ public class GameFrame extends JFrame {
     private ArrayList<Pair> linkPath;
     private final Stack<Pair> cellStack = new Stack<>();
     /* 构造函数，设置游戏界面，而不是在Main类中 */
+
+    //5.27日增加了两种构造函数，用于支持存档
     public GameFrame(boolean mode) {
+        this(mode, null);
+    }
+
+    public GameFrame(SaveData saveData) {
+        this(saveData.mode, saveData);
+    }
+
+    private GameFrame(boolean mode, SaveData saveData) {
         super("连连看游戏");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
@@ -135,7 +149,11 @@ public class GameFrame extends JFrame {
                 }
             }
         });
-        restartGame();
+        if (saveData == null) {
+            restartGame();
+        } else {
+            loadGame(saveData);
+        }
 
     }
 
@@ -169,19 +187,23 @@ public class GameFrame extends JFrame {
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 15, 15));
 
         JButton restartButton = new JButton("重新开始");
+        JButton saveButton = new JButton("保存存档");// 保存存档
         JButton backButton = new JButton("返回菜单");
 
         restartButton.addActionListener(e -> restartGame());//为按钮添加监听器，如果检测到被按到那就停止计时同时回到主菜单
+        saveButton.addActionListener(e -> saveCurrentGame());
         backButton.addActionListener(e -> {
             if (timer != null) {
                 timer.stop();
             }
+            saveGameData(false);
             dispose();
             WindowManager.showMainWindow();
         });
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.add(restartButton);
+        buttonPanel.add(saveButton);
         buttonPanel.add(backButton);
 
         actionLabel = new JLabel("上一步：暂无操作", SwingConstants.CENTER);
@@ -206,6 +228,95 @@ public class GameFrame extends JFrame {
         refreshBoard();
         refreshLabels();
         startTimer();
+    }
+
+    // 保存当前游戏
+    private void saveCurrentGame() {
+        // 停止计时器，保存游戏状态，然后恢复计时器
+        boolean wasRunning = timer != null && timer.isRunning();
+        if (wasRunning) {
+            timer.stop();
+        }
+
+        try {
+            saveGameData(true);
+        } finally {
+            if (wasRunning && leftSeconds > 0 && countRemainingPairs() > 0) {
+                timer.start();
+            }
+        }
+    }
+
+    private void saveGameData(boolean showMessage) {
+        if (!GlobalData.isLoggedIn || GlobalData.currentUsername == null) {
+            if (showMessage) {
+                JOptionPane.showMessageDialog(this, "只有注册并登录的用户可以使用存档功能。");
+            }
+            return;
+        }
+
+        try {
+            SaveStorage.save(GlobalData.currentUsername, createSaveData());
+            if (showMessage) {
+                JOptionPane.showMessageDialog(this, "存档成功，已保存到" + (mode ? "困难模式" : "简单模式") + "存档。");
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "存档失败：" + ex.getMessage());
+        }
+    }
+
+    // 创建存档对象
+    private SaveData createSaveData() {
+        SaveData data = new SaveData();
+        data.mode = mode;
+        data.leftSeconds = leftSeconds;
+        data.usedSeconds = usedSeconds;
+        data.score = score;
+        data.comboCount = comboCount;
+        data.grid = copyCurrentGrid();
+        data.actionText = actionLabel.getText();
+        return data;
+    }
+
+    // 复制当前棋盘
+    private int[][] copyCurrentGrid() {
+        int[][] grid = new int[rows][cols];
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                grid[row][col] = gameCore.getGrid(row, col);
+            }
+        }
+        return grid;
+    }
+    
+    // 根据存档恢复游戏
+    private void loadGame(SaveData saveData) {
+        setModeData(); //根据模式设置数据
+        leftSeconds = saveData.leftSeconds;// 时间
+        usedSeconds = saveData.usedSeconds;
+        score = saveData.score;
+        comboCount = saveData.comboCount;// 联消
+        linkPath = null;
+        cellStack.clear();
+
+        createPatternIcons();
+        gameCore = new GameCore(rows, cols, patternCount);
+
+        // 棋盘
+        int[][] savedGrid = saveData.grid;
+        for (int row = 0; row < rows && row < savedGrid.length; row++) {
+            for (int col = 0; col < cols && col < savedGrid[row].length; col++) {
+                gameCore.setGrid(row, col, savedGrid[row][col]);
+            }
+        }
+
+        String savedAction = saveData.actionText;
+        actionLabel.setText(savedAction == null || savedAction.trim().isEmpty() ? "上一步：已加载存档" : savedAction);
+        refreshBoard();
+        refreshLabels();
+        if (leftSeconds > 0 && countRemainingPairs() > 0) {
+            startTimer();
+        }
     }
 
     private void setModeData() {
@@ -453,12 +564,14 @@ public class GameFrame extends JFrame {
 
             if (countRemainingPairs() == 0) {
                 timer.stop();
+                saveGameData(false);
                 JOptionPane.showMessageDialog(this, "恭喜！本局游戏结束，您的积分为" + score + "分，用时为" + usedSeconds + "秒");
                 dispose();
                 WindowManager.showMainWindow();
             }
             if (leftSeconds == 0) {
                 timer.stop();
+                saveGameData(false);
                 JOptionPane.showMessageDialog(this, "失败：时间到，本局游戏结束。");
                 restartGame();
             }
