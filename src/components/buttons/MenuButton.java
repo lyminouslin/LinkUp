@@ -1,4 +1,4 @@
-package ui;
+package components.buttons;
 
 // ui/RoundedShadowButton.java
 
@@ -9,16 +9,12 @@ import java.awt.*;
 /**
  * 大圆角 + 阴影效果 + 固定尺寸的按钮
  */
-public class RoundedShadowButton extends JButton {
+public class MenuButton extends JButton {
 
     private int cornerRadius;
-    private Color shadowColor;
+    private final Color shadowColor;
     private int shadowOffsetX;
     private int shadowOffsetY;
-
-    // 按钮固定尺寸
-    private int fixedWidth = 280;
-    private int fixedHeight = 60;
 
     // 预设颜色主题
     public enum Theme {
@@ -37,12 +33,7 @@ public class RoundedShadowButton extends JButton {
         }
     }
 
-    // 构造器
-    public RoundedShadowButton(String text) {
-        this(text, Theme.PRIMARY);
-    }
-
-    public RoundedShadowButton(String text, Theme theme) {
+    public MenuButton(String text, Theme theme) {
         super(text);
         this.cornerRadius = 30;
         this.shadowColor = new Color(0, 0, 0, 80);
@@ -50,6 +41,9 @@ public class RoundedShadowButton extends JButton {
         this.shadowOffsetY = 3;
 
         // 设置固定尺寸
+        // 按钮固定尺寸
+        int fixedWidth = 280;
+        int fixedHeight = 60;
         setPreferredSize(new Dimension(fixedWidth, fixedHeight));
         setMinimumSize(new Dimension(fixedWidth, fixedHeight));
         setMaximumSize(new Dimension(fixedWidth, fixedHeight));
@@ -92,32 +86,10 @@ public class RoundedShadowButton extends JButton {
     }
 
     /**
-     * 设置按钮固定尺寸
-     */
-    public void setFixedSize(int width, int height) {
-        this.fixedWidth = width;
-        this.fixedHeight = height;
-        setPreferredSize(new Dimension(width, height));
-        setMinimumSize(new Dimension(width, height));
-        setMaximumSize(new Dimension(width, height));
-        repaint();
-    }
-
-    /**
      * 设置圆角大小
      */
     public void setCornerRadius(int radius) {
         this.cornerRadius = radius;
-        repaint();
-    }
-
-    /**
-     * 设置阴影
-     */
-    public void setShadow(Color color, int offsetX, int offsetY) {
-        this.shadowColor = color;
-        this.shadowOffsetX = offsetX;
-        this.shadowOffsetY = offsetY;
         repaint();
     }
 
@@ -143,7 +115,7 @@ public class RoundedShadowButton extends JButton {
         // 绘制高光效果
         GradientPaint highlight = new GradientPaint(
                 0, 0, new Color(255, 255, 255, 80),
-                0, h / 3, new Color(255, 255, 255, 20)
+                0, (float) h / 3, new Color(255, 255, 255, 20)
         );
         g2d.setPaint(highlight);
         g2d.fillRoundRect(0, 0, w - shadowOffsetX, h - shadowOffsetY,

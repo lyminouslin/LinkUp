@@ -1,9 +1,13 @@
 package ui;
 
+import components.frames.GameFrame;
+import util.DifficultySelector;
+import util.UserModeSelector;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class Entry {
+public class OldEntry {
     // 显示主菜单
     public static void showMainMenu() {
         JFrame frame = createFrame();

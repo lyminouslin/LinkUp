@@ -1,7 +1,7 @@
 package ui;
 
 import storage.UserStorage;
-import util.PasswordUtil;
+import util.Encryptor;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class Register {
                 return;
             }
 
-            String encryptedPassword = PasswordUtil.encrypt(newPassword);
+            String encryptedPassword = Encryptor.encrypt(newPassword);
 
             try {
                 UserStorage.addUser(newUser, encryptedPassword);

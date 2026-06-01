@@ -1,5 +1,6 @@
 package ui;
 
+import components.frames.LobbyFrame;
 import storage.UserStorage;
 import data.GlobalData;
 
@@ -60,7 +61,7 @@ public class Login {
 //                if (hardMode == null) return;
                 loginFrame.dispose();//关闭并释放这个窗口占用的资源
 //                WindowManager.switchTo(new GameFrame(hardMode));
-                WindowManager.switchTo(new MainMenuFrame());
+                WindowManager.switchTo(new LobbyFrame());
             } else JOptionPane.showMessageDialog(loginFrame, "Wrong account or password.");
         });
 

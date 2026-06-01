@@ -5,6 +5,8 @@ import java.awt.*;
 public class Constants {
     //私有化构造
     private Constants() {}
+    static public final boolean HARD = true;
+    static public final boolean EASY = false;
     static public final int HARD_PATTERN_NUMBER = 12;//类似c当中的宏
     static public final int EASY_PATTERN_NUMBER = 5;
     static public final int HARD_ROWS = 10;
@@ -13,6 +15,12 @@ public class Constants {
     static public final int EASY_COLS = 9;
     static public final int MENU_LENGTH = 1200;
     static public final int MENU_WIDTH = 900;
+    private static final int WIDTH = 960;//4.27更改了下窗口尺寸
+    private static final int HEIGHT = 760;
+    static public final int RESET = 0;
+    static public final int CHOSEN = 1;
+    static public final int CANCEL_CHOSEN = 2;
+    static public final int FAIL = 3;
     static public final Color[] COLORS = new Color[]{
             new Color(255, 204, 204),
             new Color(255, 235, 179),

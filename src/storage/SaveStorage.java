@@ -1,5 +1,7 @@
 package storage;
 
+import util.Encryptor;
+
 import java.io.Serializable;
 import java.io.IOException;
 import java.io.File;
@@ -10,9 +12,9 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-    /*数据结构大概是：
-    用户名+模式 -> 用户存档
-    */
+/*数据结构大概是：
+用户名+模式 -> 用户存档
+*/
 public class SaveStorage {
     // 设置保存数据文件名
     private static final String SAVE_DATA_FILE = "saves.obj";
@@ -52,7 +54,10 @@ public class SaveStorage {
     public static SaveData loadSave(String username, boolean mode) throws IOException, ClassNotFoundException {
         if (username == null) return null;
         SaveData saveData = loadAllSaves().get(getSaveKey(username, mode));
-        if (saveData != null && !makeCheck(username, saveData).equals(saveData.check)) {
+//        if (saveData != null && !makeCheck(username, saveData).equals(saveData.check)) {
+//            throw new SecurityException("save changed");
+//        }
+        if (saveData != null && !encrypt(username, saveData).equals(saveData.check)) {
             throw new SecurityException("save changed");
         }
         return saveData;
@@ -65,7 +70,8 @@ public class SaveStorage {
         } catch (Exception e) {
             saves = new HashMap<>();
         }
-        saveData.check = makeCheck(username, saveData);
+//        saveData.check = makeCheck(username, saveData);
+        saveData.check = encrypt(username, saveData);
         saves.put(getSaveKey(username, saveData.mode), saveData);
         saveAllSaves(saves);
     }
@@ -86,5 +92,12 @@ public class SaveStorage {
             }
         }
         return String.valueOf(result);
+    }
+
+    private static String encrypt(String username, SaveData data) {
+        String result = (username + CHECK_KEY + data.mode + data.leftSeconds + data.usedSeconds
+                + data.score + data.comboCount + data.actionText);
+        String code = Encryptor.encrypt(result);
+        return result;
     }
 }

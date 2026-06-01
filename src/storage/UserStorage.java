@@ -1,6 +1,6 @@
 package storage;
 
-import util.PasswordUtil;
+import util.Encryptor;
 
 import java.io.*;
 import java.util.HashMap;
@@ -42,6 +42,6 @@ public class UserStorage {
         if (!users.containsKey(username)) {
             return false;
         }
-        return PasswordUtil.verify(plainPassword, users.get(username));
+        return Encryptor.verify(plainPassword, users.get(username));
     }
 }

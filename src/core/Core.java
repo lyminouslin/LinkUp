@@ -1,24 +1,34 @@
 package core;
 
-import util.Utils.Pair;
+import util.Pair;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import static constants.Constants.*;
 
-public class GameCore {
+public class Core {
     private final int[][] grid;
     private final int rows;
     private final int cols;
-    public final int pattern_number;
+    private final boolean mode;
+    private int remainingPairs;
 
-    public ArrayList<Pair> Points;
+
+    public final int patternNumber;
+    public ArrayList<Pair> points;
     public HashSet<Pair> pointsMap;
 
-    public GameCore(int rows, int cols, int pattern_number) {
+    public Core(int rows, int cols, int pattern_number) {
         this.rows = rows;
         this.cols = cols;
-        this.pattern_number = pattern_number;
+        this.patternNumber = pattern_number;
+        if (this.patternNumber == HARD_PATTERN_NUMBER) {
+            mode = HARD;
+        } else {
+            mode = EASY;
+        }
         grid = new int[rows][cols];
-        Points = new ArrayList<>();
+        points = new ArrayList<>();
         pointsMap = new HashSet<>();
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -30,11 +40,24 @@ public class GameCore {
     public int getRows() {
         return rows;
     }
-
     public int getCols() {
         return cols;
     }
-
+    public boolean getMode() {
+        return mode;
+    }
+    public int getRemainingPairs() {
+        countRemainingPairs();
+        return remainingPairs;
+    }
+    public int getTotalPairCount() {
+        return rows * cols / 2;
+    }
+    public int[][] getGrid() {
+        int[][] returnGrid = new int[rows][cols];
+        for (int i = 0; i < rows; i++) System.arraycopy(grid[i], 0, returnGrid[i], 0, cols);
+        return returnGrid;
+    }
     public int getGrid(int i, int j) {
         return grid[i][j];
     }
@@ -63,5 +86,15 @@ public class GameCore {
         return true;
     }
 
-
+    public void countRemainingPairs() {
+        int count = 0;
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (getGrid(row, col) != 0) {
+                    count++;
+                }
+            }
+        }
+        remainingPairs = count / 2;
+    }
 }

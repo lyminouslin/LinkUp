@@ -1,4 +1,4 @@
-package ui;
+package util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,8 +6,7 @@ import java.awt.*;
 public class UserModeSelector {
     
     //constructor，禁止public访问，因为这个类不需要任何参数来创建
-    private UserModeSelector() {
-    }
+    private UserModeSelector() {}
 
     public static Integer chooseUserAction(Component parent) {
         String[] options = {"登录", "注册", "取消"};

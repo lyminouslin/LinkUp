@@ -6,11 +6,11 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * 轻量级密码工具类
+ * 轻量级加密工具类
  * 使用 SHA-256 + 随机盐
  */
 
-public class PasswordUtil {
+public class Encryptor {
 
     // 盐的长度（字节）
     private static final int SALT_LENGTH = 16;

@@ -1,13 +1,12 @@
 package main;
 
-import ui.EntryMenu;
+import ui.EntryUI;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 
 public class Main {
     //主程序的函数入口
     public static void main(String[] args) {
-//        SwingUtilities.invokeLater(Entry::showMainMenu);
-        SwingUtilities.invokeLater(EntryMenu::showMainMenu);
+        SwingUtilities.invokeLater(EntryUI::showEntryMenu);
     }
 }

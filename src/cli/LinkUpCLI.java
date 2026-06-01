@@ -1,13 +1,13 @@
 package cli;
 
 import constants.Constants;
-import core.GameCore;
-import core.GameMethods;
+import core.Core;
+import core.Methods;
 
 import java.util.Random;
 import java.util.Scanner;
 
-import static util.Utils.Pair;
+import util.Pair;
 
 public class LinkUpCLI {
     public static void main(String[] args) {
@@ -27,8 +27,8 @@ public class LinkUpCLI {
         int rows = input.nextInt();
         int cols = input.nextInt();
 
-        GameCore game = new GameCore(rows, cols, pattern_number);
-        GameMethods.generatePattern(game);
+        Core game = new Core(rows, cols, pattern_number);
+        Methods.generatePattern(game);
         game.showGrid();
 
         System.out.println("Now I will telling you the rule of this game:");
@@ -48,7 +48,7 @@ public class LinkUpCLI {
             int y2 = input.nextInt();
             Pair P1 = new Pair(x1, y1);
             Pair P2 = new Pair(x2, y2);
-            boolean succeed = GameMethods.eliminatePattern(game, P1, P2);
+            boolean succeed = Methods.eliminatePattern(game, P1, P2);
             if (succeed) {
                 System.out.println("The pattern has been eliminated.");
 
