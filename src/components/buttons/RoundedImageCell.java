@@ -8,10 +8,10 @@ import java.awt.geom.RoundRectangle2D;
  * 自定义圆角图片单元格，支持点击变红
  */
 public class RoundedImageCell extends JPanel {
-    private Image originalImage;
-    private int cornerRadius;
+    private final Image originalImage;
+    private final int cornerRadius;
     private boolean isRed = false;
-    private Color normalColor = new Color(240, 240, 240);
+    private final Color normalColor = new Color(240, 240, 240);
 
     public RoundedImageCell(Image image, int radius) {
         this.originalImage = image;

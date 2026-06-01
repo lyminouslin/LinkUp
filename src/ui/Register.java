@@ -56,7 +56,7 @@ public class Register {
                 return;
             }
 
-            String encryptedPassword = Encryptor.encrypt(newPassword);
+            String encryptedPassword = Encryptor.encrypt(newPassword, true);
 
             try {
                 UserStorage.addUser(newUser, encryptedPassword);
@@ -75,8 +75,6 @@ public class Register {
         registerFrame.add(passwordLabel);
         registerFrame.add(password);
         registerFrame.add(registerButton);
-//        registerFrame.setVisible(true);
-//        WindowManager.switchTo(registerFrame);
         return registerFrame;
     }
 }

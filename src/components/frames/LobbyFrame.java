@@ -2,6 +2,7 @@
 package components.frames;
 
 import components.panels.LobbyPanel;
+import ui.WindowManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +19,7 @@ public class LobbyFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(MENU_LENGTH, MENU_WIDTH);
         setLocationRelativeTo(null);
-
+        WindowManager.setMainFrame(this);
         // 主布局：BorderLayout
         setLayout(new BorderLayout(10, 10));
         LobbyPanel lobbyPanel = new LobbyPanel();

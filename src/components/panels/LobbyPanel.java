@@ -1,12 +1,13 @@
 package components.panels;
 
 import components.buttons.MenuButton;
-import components.frames.NeoGameFrame;
+import components.frames.GameFrame;
 import data.GlobalData;
 import storage.RankStorage;
 import storage.SaveStorage;
-import components.frames.GameFrame;
+import components.frames.OldGameFrame;
 import ui.WindowManager;
+import util.Encryptor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -110,7 +111,7 @@ class LeftPanel extends JPanel {
         TreeMap<RankStorage.RankData, Integer> rankMap;
         // 排行榜列表
         try {
-            rankMap = RankStorage.loadRanks();
+            rankMap = RankStorage.loadAllRanks();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -118,10 +119,16 @@ class LeftPanel extends JPanel {
             int count = 0;
         };
         rankMap.forEach((rankData, rank) -> {
-            ref.count++;
             String username = rankData.getUsername();
             int totalScore = rankData.getTotalScore();
+            String hashcode =  rankData.getHashcode();
+            if (!Encryptor.encrypt(username + totalScore).equals(hashcode)) {
+                JOptionPane.showMessageDialog(this, "您的排行数据异常！将被重置为0分.");
+                rankData.setTotalScore(0);
+                totalScore = 0;
+            }
             GlobalData.currentRankData.put(username, rankData);
+            ref.count++;
             String rankString = ref.count + ".  " + username + " - " + totalScore + "分";
             listModel.addElement(rankString);
         });
@@ -224,7 +231,7 @@ class CenterPanel extends JPanel {
         classicBtn.setFont(new Font("Dialog", Font.BOLD, 18));
         add(classicBtn, gbc);
         classicBtn.addActionListener(e -> {
-            NeoGameFrame gameWindow = new NeoGameFrame(false);
+            GameFrame gameWindow = new GameFrame(false);
             WindowManager.switchTo(gameWindow);
         });
 
@@ -234,7 +241,7 @@ class CenterPanel extends JPanel {
         hardBtn.setFont(new Font("Dialog", Font.BOLD, 18));
         add(hardBtn, gbc);
         hardBtn.addActionListener(e -> {
-            NeoGameFrame gameWindow = new NeoGameFrame(true);
+            GameFrame gameWindow = new GameFrame(true);
             WindowManager.switchTo(gameWindow);
         });
 
@@ -284,7 +291,7 @@ class SaveLoader {
             return;
         }
 
-        GameFrame gameWindow = new GameFrame(saveData);
+        OldGameFrame gameWindow = new OldGameFrame(saveData);
         WindowManager.switchTo(gameWindow);
     }
 }

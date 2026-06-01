@@ -26,7 +26,7 @@ public class SaveStorage {
         public int leftSeconds, usedSeconds, score, comboCount;
         public int[][] grid;
         public String actionText;
-        public String check;
+        public String hashcode;
     }
 
     // 从save.obj读取存档
@@ -54,15 +54,12 @@ public class SaveStorage {
     public static SaveData loadSave(String username, boolean mode) throws IOException, ClassNotFoundException {
         if (username == null) return null;
         SaveData saveData = loadAllSaves().get(getSaveKey(username, mode));
-//        if (saveData != null && !makeCheck(username, saveData).equals(saveData.check)) {
-//            throw new SecurityException("save changed");
-//        }
-        if (saveData != null && !encrypt(username, saveData).equals(saveData.check)) {
+        if (saveData != null && !encrypt(username, saveData).equals(saveData.hashcode)) {
             throw new SecurityException("save changed");
         }
         return saveData;
     }
-    //保存某一个用户的当前游戏，然后把username和savedata刷入，并saveallsaves
+    //保存某一个用户的当前游戏，然后把username和SaveData刷入，并saveAllSaves
     public static void save(String username, SaveData saveData) throws IOException {
         Map<String, SaveData> saves;
         try {
@@ -70,8 +67,7 @@ public class SaveStorage {
         } catch (Exception e) {
             saves = new HashMap<>();
         }
-//        saveData.check = makeCheck(username, saveData);
-        saveData.check = encrypt(username, saveData);
+        saveData.hashcode = encrypt(username, saveData);
         saves.put(getSaveKey(username, saveData.mode), saveData);
         saveAllSaves(saves);
     }
@@ -80,24 +76,9 @@ public class SaveStorage {
         return username + "_" + (mode ? "hard" : "easy");
     }
 
-    private static String makeCheck(String username, SaveData data) {
-        //java当中只要有一个是string，所有的都是string
-        int result = (username + CHECK_KEY + data.mode + data.leftSeconds + data.usedSeconds
-                + data.score + data.comboCount + data.actionText).hashCode();
-        if (data.grid != null) {
-            for (int[] row : data.grid) {
-                for (int value : row) {
-                    result = result * 31 + value;
-                }
-            }
-        }
-        return String.valueOf(result);
-    }
-
     private static String encrypt(String username, SaveData data) {
         String result = (username + CHECK_KEY + data.mode + data.leftSeconds + data.usedSeconds
                 + data.score + data.comboCount + data.actionText);
-        String code = Encryptor.encrypt(result);
-        return result;
+        return Encryptor.encrypt(result);
     }
 }

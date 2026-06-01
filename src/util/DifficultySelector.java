@@ -3,7 +3,7 @@ package util;
 import javax.swing.*;
 import java.awt.*;
 
-public class DifficultySelector {//逻辑和usermodeselector完全相同
+public class DifficultySelector {//逻辑和UserModeSelector完全相同
     private DifficultySelector() {
     }
 

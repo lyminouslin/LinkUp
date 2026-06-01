@@ -61,6 +61,7 @@ public class EntryFrame extends JFrame {
             Boolean hardMode = DifficultySelector.chooseDifficulty(this);
             if (hardMode != null) {
                 GameFrame gameWindow = new GameFrame(hardMode);
+                WindowManager.setMainFrame(this);
                 WindowManager.switchTo(gameWindow);
             }
         });

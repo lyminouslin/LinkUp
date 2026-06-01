@@ -261,8 +261,8 @@ class GameGridPanel extends JPanel implements GameListener {
         for (int i = 1; i < linkPath.size(); i++) {
             Pair p1 = linkPath.get(i - 1);// 第一个端点
             Pair p2 = linkPath.get(i);// 第二个端点
-            Rectangle r1 = cells[p1.x][p1.y].getBounds();
-            Rectangle r2 = cells[p2.x][p2.y].getBounds();
+            Rectangle r1 = cells[p1.x()][p1.y()].getBounds();
+            Rectangle r2 = cells[p2.x()][p2.y()].getBounds();
             pen.drawLine(r1.x + r1.width / 2, r1.y + r1.height / 2,
                     r2.x + r2.width / 2, r2.y + r2.height / 2);
         } // 从第一个端点的中心到第二个端点的中心之间画一个直线

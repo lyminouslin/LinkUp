@@ -1,6 +1,6 @@
 package ui;
 
-import components.frames.GameFrame;
+import components.frames.OldGameFrame;
 import util.DifficultySelector;
 import util.UserModeSelector;
 
@@ -40,7 +40,7 @@ public class OldEntry {
         guestModeButton.addActionListener(e -> {//游客模式增加监听器，当用户点击的时候执行代码
             Boolean hardMode = DifficultySelector.chooseDifficulty(frame);
             if (hardMode != null) {
-                GameFrame gameWindow = new GameFrame(hardMode);
+                OldGameFrame gameWindow = new OldGameFrame(hardMode);
                 WindowManager.switchTo(gameWindow);
             }
         });

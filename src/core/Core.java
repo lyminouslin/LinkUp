@@ -4,29 +4,22 @@ import util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import static constants.Constants.*;
 
 public class Core {
     private final int[][] grid;
     private final int rows;
     private final int cols;
-    private final boolean mode;
     private int remainingPairs;
 
 
     public final int patternNumber;
-    public ArrayList<Pair> points;
-    public HashSet<Pair> pointsMap;
+    public final ArrayList<Pair> points;
+    public final HashSet<Pair> pointsMap;
 
     public Core(int rows, int cols, int pattern_number) {
         this.rows = rows;
         this.cols = cols;
         this.patternNumber = pattern_number;
-        if (this.patternNumber == HARD_PATTERN_NUMBER) {
-            mode = HARD;
-        } else {
-            mode = EASY;
-        }
         grid = new int[rows][cols];
         points = new ArrayList<>();
         pointsMap = new HashSet<>();
@@ -43,15 +36,9 @@ public class Core {
     public int getCols() {
         return cols;
     }
-    public boolean getMode() {
-        return mode;
-    }
     public int getRemainingPairs() {
         countRemainingPairs();
         return remainingPairs;
-    }
-    public int getTotalPairCount() {
-        return rows * cols / 2;
     }
     public int[][] getGrid() {
         int[][] returnGrid = new int[rows][cols];

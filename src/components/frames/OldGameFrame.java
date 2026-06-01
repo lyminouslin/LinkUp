@@ -2,7 +2,6 @@ package components.frames;
 import static constants.Constants.*;
 
 import components.buttons.ImageGridCell;
-import components.listeners.TimeListener;
 import core.Core;
 import core.Methods;
 
@@ -27,12 +26,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.List;
-
 
 /*panel装button ，button可以显示文字, 文字就是label*/
 
-public class GameFrame extends JFrame {
+public class OldGameFrame extends JFrame {
     private static final int ROWS = 5;
     private static final int COLS = 5;
     private static final int WIDTH = 960;//4.27更改了下窗口尺寸
@@ -65,39 +62,17 @@ public class GameFrame extends JFrame {
     private ArrayList<Pair> linkPath;
     private final Stack<Pair> cellStack = new Stack<>();
     /* 构造函数，设置游戏界面，而不是在Main类中 */
-    private final List<TimeListener> listeners = new ArrayList<>();
-
-    public void addTimeListener(TimeListener timeListener) {
-        listeners.add(timeListener);
-    }
-
-    private void notifyTimeChanged(int remainingSeconds) {
-        for (TimeListener listener : listeners) {
-            listener.onTimeChanged(remainingSeconds);
-        }
-    }
-    private void startCountdown() {
-        timer = new Timer(1000, e -> {
-            leftSeconds--;
-            notifyTimeChanged(leftSeconds);  // 通知所有监听器
-            if (leftSeconds <= 0) {
-                timer.stop();
-//                notifyTimeOut();
-            }
-        });
-        timer.start();
-    }
 
     //5.27日增加了两种构造函数，用于支持存档
-    public GameFrame(boolean mode) {
+    public OldGameFrame(boolean mode) {
         this(mode, null);
     }
 
-    public GameFrame(SaveData saveData) {
+    public OldGameFrame(SaveData saveData) {
         this(saveData.mode, saveData);
     }
 
-    private GameFrame(boolean mode, SaveData saveData) {
+    private OldGameFrame(boolean mode, SaveData saveData) {
         setTitle("连连看游戏");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
@@ -125,8 +100,8 @@ public class GameFrame extends JFrame {
                 for (int i = 1; i < linkPath.size(); i++) {
                     Pair p1 = linkPath.get(i - 1);// 第一个端点
                     Pair p2 = linkPath.get(i);// 第二个端点
-                    Rectangle r1 = cells[p1.x][p1.y].getBounds();
-                    Rectangle r2 = cells[p2.x][p2.y].getBounds();
+                    Rectangle r1 = cells[p1.x()][p1.y()].getBounds();
+                    Rectangle r2 = cells[p2.x()][p2.y()].getBounds();
                     pen.drawLine(r1.x + r1.width / 2, r1.y + r1.height / 2,
                             r2.x + r2.width / 2, r2.y + r2.height / 2);
                 } // 从第一个端点的中心到第二个端点的中心之间画一个直线
@@ -510,8 +485,8 @@ public class GameFrame extends JFrame {
         } else {
             Pair selectedCell = cellStack.pop();
             //第一次选中格子的坐标
-            int _x = selectedCell.x;
-            int _y = selectedCell.y;
+            int _x = selectedCell.x();
+            int _y = selectedCell.y();
 
             // 第二次点到同一个格子，就取消选择
             if (x == _x && y == _y) {
@@ -613,7 +588,7 @@ public class GameFrame extends JFrame {
     private void updateRank(String username, int score) {
         TreeMap<RankData, Integer> rankMap;
         try {
-            rankMap = RankStorage.loadRanks();
+            rankMap = RankStorage.loadAllRanks();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -624,7 +599,7 @@ public class GameFrame extends JFrame {
             rankMap.put(GlobalData.currentRankData.get(username), score);
         }
         else {
-            rankMap.put(new RankData(score, username, "123"), 0);
+            rankMap.put(new RankData(score, username), 0);
         }
         try {
             RankStorage.saveRanks(rankMap);

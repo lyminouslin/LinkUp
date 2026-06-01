@@ -1,6 +1,6 @@
 package ui;
 
-import components.frames.NeoGameFrame;
+import components.frames.GameFrame;
 
 import javax.swing.*;
 
@@ -9,8 +9,7 @@ public class GameUI {
         SwingUtilities.invokeLater(GameUI::showGameMenu);
     }
     public static void showGameMenu() {
-        NeoGameFrame gameFrame = new NeoGameFrame(false);
-        WindowManager.setMainFrame(gameFrame);
-        WindowManager.showMainWindow();
+        GameFrame gameFrame = new GameFrame(false);
+        WindowManager.switchTo(gameFrame);
     }
 }

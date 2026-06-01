@@ -2,6 +2,7 @@ package components.frames;
 
 import components.listeners.CellClickListener;
 import components.panels.GamePanel;
+import constants.Constants;
 import core.Core;
 import core.Methods;
 import data.CellState;
@@ -23,7 +24,7 @@ import java.util.TreeMap;
 
 import static constants.Constants.*;
 
-public class NeoGameFrame extends JFrame implements CellClickListener {
+public class GameFrame extends JFrame implements CellClickListener {
     private int rows;
     private int cols;
     private int totalPairCount;
@@ -42,18 +43,14 @@ public class NeoGameFrame extends JFrame implements CellClickListener {
     private Timer timer;
     private final Stack<Pair> cellStack;
 
-    public NeoGameFrame(boolean mode) {
+    public GameFrame(boolean mode) {
         this(mode, null);
     }
 
-    public NeoGameFrame(SaveData saveData) {
-        this(saveData.mode, saveData);
-    }
-
-    public NeoGameFrame(boolean mode, SaveData saveData) {
+    public GameFrame(boolean mode, SaveData saveData) {
         setTitle("连连看游戏");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(960, 720);
+        setSize(Constants.WIDTH, Constants.HEIGHT);
         setLocationRelativeTo(null);
         cellStack = new Stack<>();
         this.mode = mode;
@@ -109,8 +106,8 @@ public class NeoGameFrame extends JFrame implements CellClickListener {
         }
         Pair selectedCell = cellStack.pop();
         //第一次选中格子的坐标
-        int _x = selectedCell.x;
-        int _y = selectedCell.y;
+        int _x = selectedCell.x();
+        int _y = selectedCell.y();
 
         // 第二次点到同一个格子，就取消选择
         if (x == _x && y == _y) {
@@ -372,7 +369,7 @@ public class NeoGameFrame extends JFrame implements CellClickListener {
         if (username == null) return;
         TreeMap<RankStorage.RankData, Integer> rankMap;
         try {
-            rankMap = RankStorage.loadRanks();
+            rankMap = RankStorage.loadAllRanks();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -383,7 +380,7 @@ public class NeoGameFrame extends JFrame implements CellClickListener {
             rankMap.put(GlobalData.currentRankData.get(username), score);
         }
         else {
-            rankMap.put(new RankStorage.RankData(score, username, "123"), 0);
+            rankMap.put(new RankStorage.RankData(score, username), 0);
         }
         try {
             RankStorage.saveRanks(rankMap);

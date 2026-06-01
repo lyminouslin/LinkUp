@@ -23,9 +23,12 @@ public class Encryptor {
      * @param plainPassword 明文密码
      * @return 加密后的字符串，格式: "盐:哈希值"
      */
-
     public static String encrypt(String plainPassword) {
+        return Encryptor.encrypt(plainPassword, false);
+    }
+    public static String encrypt(String plainPassword, boolean mode) {
         String result;
+        String hash;
         try {
             // 1. 生成随机盐
             byte[] saltBytes = new byte[SALT_LENGTH];
@@ -34,10 +37,12 @@ public class Encryptor {
             String salt = Base64.getEncoder().encodeToString(saltBytes);
 
             // 2. 计算哈希（密码 + 盐）
-            String hash = sha256(plainPassword + salt);
+            if (mode) hash = sha256(plainPassword + salt);
+            else hash = sha256(plainPassword);
 
             // 3. 返回 "盐:哈希" 格式
-            result = salt + ":" + hash;
+            if (mode) result = salt + ":" + hash;
+            else result = ":" + hash;
 
         } catch (Exception e) {
             throw new RuntimeException("密码加密失败", e);

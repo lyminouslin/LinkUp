@@ -15,8 +15,8 @@ public class Constants {
     static public final int EASY_COLS = 9;
     static public final int MENU_LENGTH = 1200;
     static public final int MENU_WIDTH = 900;
-    private static final int WIDTH = 960;//4.27更改了下窗口尺寸
-    private static final int HEIGHT = 760;
+    static public final int WIDTH = 960;//4.27更改了下窗口尺寸
+    static public final int HEIGHT = 760;
     static public final int RESET = 0;
     static public final int CHOSEN = 1;
     static public final int CANCEL_CHOSEN = 2;
