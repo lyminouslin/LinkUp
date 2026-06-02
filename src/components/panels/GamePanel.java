@@ -264,9 +264,10 @@ class GameGridPanel extends JPanel implements GameListener {
         pen.dispose();
     }
     private void refreshBoard(GameStatePack pack) {
-        if (pack.state1() == null) {
-            if (pack.text() == null) return;
-            if (!pack.text().equals("INIT")) return;
+        boolean hasCellUpdates = pack.state1() != null || pack.state2() != null;
+        boolean shouldRebuildBoard = "INIT".equals(pack.text()) || cells[0][0] == null;
+        if (!hasCellUpdates && !shouldRebuildBoard) {
+            return;
         }
         removeAll();
         setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));

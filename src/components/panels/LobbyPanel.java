@@ -5,7 +5,6 @@ import components.frames.GameFrame;
 import data.GlobalData;
 import storage.RankStorage;
 import storage.SaveStorage;
-import components.frames.OldGameFrame;
 import ui.WindowManager;
 import util.Encryptor;
 
@@ -297,7 +296,7 @@ class SaveLoader {
             return;
         }
 
-        OldGameFrame gameWindow = new OldGameFrame(saveData);
+        GameFrame gameWindow = new GameFrame(saveData.mode, saveData);
         WindowManager.switchTo(gameWindow);
     }
 }

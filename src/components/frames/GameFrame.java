@@ -203,6 +203,7 @@ public class GameFrame extends JFrame implements CellClickListener {
                 core.setGrid(row, col, savedGrid[row][col]);
             }
         }
+        remainingPairs = core.getRemainingPairs();
         String savedAction = saveData.actionText;
         String text = savedAction == null || savedAction.trim().isEmpty() ? "上一步：已加载存档" : savedAction;
         GameStatePack recoverPack = buildDataPack(text, null, null);
