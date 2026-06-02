@@ -321,6 +321,7 @@ public class GameFrame extends JFrame implements CellClickListener {
             }
             if (leftSeconds == 0) {
                 timer.stop();
+                AudioPlayer.stopBackgroundMusic();
                 AudioPlayer.playFAIL();
                 saveGameData(false);
                 JOptionPane.showMessageDialog(this, "失败：时间到，本局游戏结束。");

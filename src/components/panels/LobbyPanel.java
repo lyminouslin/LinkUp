@@ -12,6 +12,7 @@ import util.Encryptor;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class LobbyPanel extends JPanel {
@@ -49,17 +50,7 @@ class TopPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         setBackground(new Color(240, 248, 255));  // 浅蓝色背景
         // 左侧：欢迎语
-        JLabel welcomeLabel = new JLabel("欢迎回来，玩家：");
-        welcomeLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-
-        JLabel usernameLabel = new JLabel(GlobalData.currentUsername);
-        usernameLabel.setFont(new Font("微软雅黑", Font.BOLD, 16));
-        usernameLabel.setForeground(new Color(0, 100, 200));
-
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leftPanel.setOpaque(false);
-        leftPanel.add(welcomeLabel);
-        leftPanel.add(usernameLabel);
+        JPanel leftPanel = getLeftPanel();
 
         // 右侧：头像和设置
         JButton avatarBtn = new JButton("👤 更换头像");
@@ -74,7 +65,22 @@ class TopPanel extends JPanel {
         rightPanel.add(settingsBtn);
 
         add(leftPanel, BorderLayout.WEST);
-        add(rightPanel, BorderLayout.EAST);
+//        add(rightPanel, BorderLayout.EAST); // 右侧功能待实现
+    }
+
+    private static JPanel getLeftPanel() {
+        JLabel welcomeLabel = new JLabel("欢迎回来，玩家：");
+        welcomeLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+
+        JLabel usernameLabel = new JLabel(Objects.requireNonNullElse(GlobalData.currentUsername, "游客"));
+        usernameLabel.setFont(new Font("微软雅黑", Font.BOLD, 16));
+        usernameLabel.setForeground(new Color(0, 100, 200));
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        leftPanel.setOpaque(false);
+        leftPanel.add(welcomeLabel);
+        leftPanel.add(usernameLabel);
+        return leftPanel;
     }
 }
 class LeftPanel extends JPanel {
