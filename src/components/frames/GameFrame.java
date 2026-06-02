@@ -289,6 +289,7 @@ public class GameFrame extends JFrame implements CellClickListener {
     }
     private void fillHardCore() {
         core = new Core(rows, cols, patternCount);
+        Methods.generatePattern(core);
     }
 
     private void startTimer() {
@@ -320,6 +321,7 @@ public class GameFrame extends JFrame implements CellClickListener {
             }
             if (leftSeconds == 0) {
                 timer.stop();
+                AudioPlayer.playFAIL();
                 saveGameData(false);
                 JOptionPane.showMessageDialog(this, "失败：时间到，本局游戏结束。");
                 restartGame();

@@ -10,6 +10,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
+import static constants.Constants.MENU_LENGTH;
+import static constants.Constants.MENU_WIDTH;
+
 public class EntryFrame extends JFrame {
     public EntryFrame() {
         createFrame();
@@ -19,7 +22,7 @@ public class EntryFrame extends JFrame {
     private void createFrame() {
         setTitle("连连看-主菜单");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1200, 900);
+        setSize(MENU_LENGTH, MENU_WIDTH);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
     }

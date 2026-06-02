@@ -27,8 +27,10 @@ public class ImageGridCell extends JPanel {
         }
 
         setLayout(new BorderLayout());
-        Color normalColor = new Color(240, 240, 240);
+//        Color normalColor = new Color(240, 240, 240);
+        Color normalColor = new Color(245, 245, 245);
         setBackground(normalColor);
+
 //        setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
         setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         setOpaque(true);

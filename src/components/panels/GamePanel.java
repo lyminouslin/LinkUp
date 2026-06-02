@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 
 public class GamePanel extends JPanel implements GameListener {
@@ -194,9 +195,9 @@ class GameGridPanel extends JPanel implements GameListener {
         int iconSize;
         //困难模式大尺寸，简单模式小尺寸
         if (mode == HARD) {
-            iconSize = 48;
+            iconSize = 68;
         } else {
-            iconSize = 58;
+            iconSize = 78;
         }
         icons = new ImageIcon[HARD_PATTERN_NUMBER + 1];//因为图案编号是从1开始的，数组长度要加上1，以便和图案编号对应
         for (int i = 1; i <= HARD_PATTERN_NUMBER; i++) {
@@ -206,23 +207,17 @@ class GameGridPanel extends JPanel implements GameListener {
     /*函数逻辑要后期更改：目前只有两个图片，我们需要12个，我这里只判断了0.jpg和1.jpg的情况*/
     //按照图片编号加载对应的图片图标并返回
     private ImageIcon loadPatternIcon(int index, int iconSize) {
-//        if (index == 1 || index == 2) {
-//            String path;
-//            if (index == 1) {
-//                path = "resources/0.png";
-//            } else {
-//                path = "resources/1.png";
-//            }
-//
-//            File file = new File(path);
-//            if (file.exists()) {
-//                ImageIcon originalIcon = new ImageIcon(path);//加载对应路径的图片
-//                if (originalIcon.getImageLoadStatus() == MediaTracker.COMPLETE) {//如果图片已经加载成功。MediaTracker是一个工具类，用于跟踪媒体对象的加载状态，COMPLETE表示加载完成
-//                    Image scaledImage = originalIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
-//                    return new ImageIcon(scaledImage);
-//                }
-//            }
-//        }
+        if (index > HARD_PATTERN_NUMBER || index <= 0) return null;
+        String path;
+        path = "resources/cell_" + index + ".png";
+        File file = new File(path);
+        if (file.exists()) {
+            ImageIcon originalIcon = new ImageIcon(path);//加载对应路径的图片
+            if (originalIcon.getImageLoadStatus() == MediaTracker.COMPLETE) {//如果图片已经加载成功。MediaTracker是一个工具类，用于跟踪媒体对象的加载状态，COMPLETE表示加载完成
+                Image scaledImage = originalIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_AREA_AVERAGING);
+                return new ImageIcon(scaledImage);
+            }
+        }
         //如果不存在对应的图片，就返回一个自己画的图标，函数见下方
         return createDrawnIcon(index, iconSize);
     }

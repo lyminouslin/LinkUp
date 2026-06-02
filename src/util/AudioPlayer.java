@@ -46,7 +46,9 @@ public final class AudioPlayer {
     public static void playError() {
         playEffect("resources/error.mp3");
     }
-
+    public static void playFAIL() {
+        playEffect("resources/fail_effect.mp3");
+    }
     private static void playEffect(String path) {
         File file = new File(path);
         if (!file.exists()) {
